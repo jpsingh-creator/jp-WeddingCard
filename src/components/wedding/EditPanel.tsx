@@ -1,6 +1,21 @@
 import { useState } from "react";
 import type { CardData, EventItem } from "./types";
 
+const suggestEmoji = (name: string): string => {
+  const n = name.toLowerCase();
+  if (n.includes('haldi')) return '🌼';
+  if (n.includes('mehendi') || n.includes('mehndi')) return '🌿';
+  if (n.includes('sangeet')) return '🎵';
+  if (n.includes('wedding') || n.includes('vivaha') || n.includes('muhurtam')) return '🪔';
+  if (n.includes('reception')) return '🥂';
+  if (n.includes('roka') || n.includes('engagement') || n.includes('sagai')) return '💍';
+  if (n.includes('tilak')) return '🕉️';
+  if (n.includes('baraat') || n.includes('barat')) return '🥁';
+  if (n.includes('pooja') || n.includes('puja') || n.includes('ganesh')) return '🥥';
+  if (n.includes('vidai') || n.includes('bidaai')) return '🌸';
+  return '';
+};
+
 export function EditPanel({
   data,
   onSave,
@@ -16,6 +31,10 @@ export function EditPanel({
 
   const update = (patch: Partial<CardData>) => setD({ ...d, ...patch });
   const updateEvent = (i: number, patch: Partial<EventItem>) => {
+    if (patch.name !== undefined) {
+      const suggested = suggestEmoji(patch.name);
+      if (suggested) patch.emoji = suggested;
+    }
     const events = d.events.map((e, idx) => (idx === i ? { ...e, ...patch } : e));
     setD({ ...d, events });
   };
