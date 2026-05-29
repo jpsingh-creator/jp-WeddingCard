@@ -23,9 +23,9 @@ export type Search = { edit?: string };
 
 export const headFn = () => ({
     meta: [
-      { title: "Shubh Vivah · Priya weds Arjun" },
-      { name: "description", content: "With blessings of elders, join us in celebrating the sacred union of Priya & Arjun." },
-      { property: "og:title", content: "Shubh Vivah · Priya weds Arjun" },
+      { title: "Shubh Vivah · Parvati weds Shiva" },
+      { name: "description", content: "With blessings of elders, join us in celebrating the sacred union of Parvati & Shiva." },
+      { property: "og:title", content: "Shubh Vivah · Parvati weds Shiva" },
       { property: "og:description", content: "A traditional Hindu wedding invitation." },
     ],
 });
