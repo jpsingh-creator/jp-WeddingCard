@@ -57,6 +57,20 @@ export function EditPanel({
     setD({ ...d, events: d.events.filter(e => e.id !== id) });
   };
 
+  const moveEventUp = (i: number) => {
+    if (i === 0) return;
+    const events = [...d.events];
+    [events[i - 1], events[i]] = [events[i], events[i - 1]];
+    setD({ ...d, events });
+  };
+
+  const moveEventDown = (i: number) => {
+    if (i === d.events.length - 1) return;
+    const events = [...d.events];
+    [events[i], events[i + 1]] = [events[i + 1], events[i]];
+    setD({ ...d, events });
+  };
+
   return (
     <div className="fixed inset-0 z-[90] bg-black/70 backdrop-blur-sm flex items-start md:items-center justify-center p-3 overflow-auto">
       <div className="glass-card w-full max-w-2xl my-6 p-5 md:p-7 space-y-4">
@@ -86,13 +100,31 @@ export function EditPanel({
           <div className="space-y-3">
             {d.events.map((ev, i) => (
               <div key={ev.id} className="relative rounded-xl border border-gold/30 p-3 space-y-2 bg-black/20">
-                <button
-                  onClick={() => removeEvent(ev.id)}
-                  className="absolute top-3 right-3 text-rose/70 hover:text-rose text-xs font-label"
-                  title="Remove this event"
-                >
-                  ✕
-                </button>
+                <div className="absolute top-2 right-2 flex items-center gap-2">
+                  <button
+                    onClick={() => moveEventUp(i)}
+                    disabled={i === 0}
+                    className="text-gold-soft hover:text-gold text-sm disabled:opacity-30"
+                    title="Move up"
+                  >
+                    ↑
+                  </button>
+                  <button
+                    onClick={() => moveEventDown(i)}
+                    disabled={i === d.events.length - 1}
+                    className="text-gold-soft hover:text-gold text-sm disabled:opacity-30"
+                    title="Move down"
+                  >
+                    ↓
+                  </button>
+                  <button
+                    onClick={() => removeEvent(ev.id)}
+                    className="text-rose/70 hover:text-rose text-sm font-label ml-2"
+                    title="Remove this event"
+                  >
+                    ✕
+                  </button>
+                </div>
                 <div className="grid grid-cols-2 gap-2 pr-6">
                   <Field label="Name" value={ev.name} onChange={(v) => updateEvent(i, { name: v })} />
                   <Field label="Emoji" value={ev.emoji} onChange={(v) => updateEvent(i, { emoji: v })} />
