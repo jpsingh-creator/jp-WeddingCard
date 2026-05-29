@@ -96,12 +96,12 @@ export function GaneshaIntro({ onDone }: { onDone: () => void }) {
               onError={() => setImgReady(true)}
               className="relative object-contain"
               style={{
-                width: introImageSize,
-                maxWidth: "300px",
-                maxHeight: "40svh",
+                width: "min(75vw, 45svh, 340px)",
+                maxWidth: "340px",
+                maxHeight: "45svh",
                 opacity: imgReady ? 1 : 0,
                 transition: "opacity 0.5s ease",
-                filter: "drop-shadow(0 0 15px rgba(255, 200, 80, 0.5))",
+                filter: "drop-shadow(0 0 35px rgba(255, 220, 100, 0.8))",
                 willChange: "opacity, filter, transform",
                 transform: "translateZ(0)",
               }}
