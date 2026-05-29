@@ -94,14 +94,13 @@ export function GaneshaIntro({ onDone }: { onDone: () => void }) {
               decoding="async"
               onLoad={() => setImgReady(true)}
               onError={() => setImgReady(true)}
-              className="relative object-contain"
+              className="relative object-contain animate-pulse-drop-shadow"
               style={{
                 width: "min(75vw, 45svh, 340px)",
                 maxWidth: "340px",
                 maxHeight: "45svh",
                 opacity: imgReady ? 1 : 0,
                 transition: "opacity 0.5s ease",
-                filter: "drop-shadow(0 0 35px rgba(255, 220, 100, 0.8))",
                 willChange: "opacity, filter, transform",
                 transform: "translateZ(0)",
               }}
