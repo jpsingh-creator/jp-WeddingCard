@@ -1,0 +1,119 @@
+{
+  "%23tanstack-start-plugin-adapters": {
+    "file": "assets/__23tanstack-start-plugin-adapters-Cwee5PKy.js",
+    "name": "__23tanstack-start-plugin-adapters",
+    "src": "%23tanstack-start-plugin-adapters",
+    "isDynamicEntry": true
+  },
+  "/home/runner/work/jp-WeddingCard/jp-WeddingCard/src/styles.css": {
+    "file": "assets/styles-4sJSrnBu.css",
+    "src": "/home/runner/work/jp-WeddingCard/jp-WeddingCard/src/styles.css"
+  },
+  "_router-2TWARvt8.js": {
+    "file": "assets/router-2TWARvt8.js",
+    "name": "router",
+    "isDynamicEntry": true,
+    "imports": [
+      "_server-DiFKVOIe.js"
+    ],
+    "dynamicImports": [
+      "src/routes/p100.tsx?tsr-split=component",
+      "src/routes/index.tsx?tsr-split=component"
+    ],
+    "assets": [
+      "assets/couple-cartoon-CyxrOMFv.png",
+      "assets/couple-silhouette-DSti8lw9.png",
+      "assets/mandala-BdVDrp9M.png",
+      "assets/peacock-D_Pl98Z4.png",
+      "assets/diya-Bo0hNaws.png",
+      "assets/ganesha-2LiRrq5M.png",
+      "assets/styles-4sJSrnBu.css"
+    ]
+  },
+  "_server-DiFKVOIe.js": {
+    "file": "assets/server-DiFKVOIe.js",
+    "name": "server",
+    "isDynamicEntry": true,
+    "dynamicImports": [
+      "tanstack-start-manifest:v",
+      "_router-2TWARvt8.js",
+      "src/start.ts",
+      "%23tanstack-start-plugin-adapters"
+    ]
+  },
+  "_worker-entry-5lxg9_SI.js": {
+    "file": "assets/worker-entry-5lxg9_SI.js",
+    "name": "worker-entry",
+    "dynamicImports": [
+      "_server-DiFKVOIe.js"
+    ]
+  },
+  "src/assets/couple-cartoon.png": {
+    "file": "assets/couple-cartoon-CyxrOMFv.png",
+    "src": "src/assets/couple-cartoon.png"
+  },
+  "src/assets/couple-silhouette.png": {
+    "file": "assets/couple-silhouette-DSti8lw9.png",
+    "src": "src/assets/couple-silhouette.png"
+  },
+  "src/assets/diya.png": {
+    "file": "assets/diya-Bo0hNaws.png",
+    "src": "src/assets/diya.png"
+  },
+  "src/assets/ganesha.png": {
+    "file": "assets/ganesha-2LiRrq5M.png",
+    "src": "src/assets/ganesha.png"
+  },
+  "src/assets/mandala.png": {
+    "file": "assets/mandala-BdVDrp9M.png",
+    "src": "src/assets/mandala.png"
+  },
+  "src/assets/peacock.png": {
+    "file": "assets/peacock-D_Pl98Z4.png",
+    "src": "src/assets/peacock.png"
+  },
+  "src/routes/index.tsx?tsr-split=component": {
+    "file": "assets/index-Vk2VoaNN.js",
+    "name": "index",
+    "src": "src/routes/index.tsx?tsr-split=component",
+    "isDynamicEntry": true,
+    "imports": [
+      "_router-2TWARvt8.js",
+      "_server-DiFKVOIe.js"
+    ]
+  },
+  "src/routes/p100.tsx?tsr-split=component": {
+    "file": "assets/p100-Vk2VoaNN.js",
+    "name": "p100",
+    "src": "src/routes/p100.tsx?tsr-split=component",
+    "isDynamicEntry": true,
+    "imports": [
+      "_router-2TWARvt8.js",
+      "_server-DiFKVOIe.js"
+    ]
+  },
+  "src/start.ts": {
+    "file": "assets/start-BPAItfjL.js",
+    "name": "start",
+    "src": "src/start.ts",
+    "isDynamicEntry": true,
+    "imports": [
+      "_worker-entry-5lxg9_SI.js"
+    ]
+  },
+  "tanstack-start-manifest:v": {
+    "file": "assets/_tanstack-start-manifest_v-EzLQHFjH.js",
+    "name": "_tanstack-start-manifest_v",
+    "src": "tanstack-start-manifest:v",
+    "isDynamicEntry": true
+  },
+  "virtual:cloudflare/worker-entry": {
+    "file": "index.js",
+    "name": "index",
+    "src": "virtual:cloudflare/worker-entry",
+    "isEntry": true,
+    "imports": [
+      "_worker-entry-5lxg9_SI.js"
+    ]
+  }
+}
