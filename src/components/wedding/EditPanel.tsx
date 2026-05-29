@@ -157,14 +157,14 @@ export function EditPanel({
           </div>
 
           <div className="pt-4 border-t border-gold/20">
-            <h3 className="font-label uppercase tracking-[0.2em] text-gold text-sm mb-4">Accommodation / Travel</h3>
+            <h3 className="font-label uppercase tracking-[0.2em] text-gold text-sm mb-4">Accommodation</h3>
             <div className="space-y-4">
               <div className="flex gap-4">
                 <div className="w-24 shrink-0">
                   <Field label="Icon" value={d.accommodationIcon || ""} onChange={(v) => update({ accommodationIcon: v })} hint="e.g. 🏨" />
                 </div>
                 <div className="flex-1">
-                  <Field label="Accommodation / Travel Info" value={d.accommodation || ""} onChange={(v) => update({ accommodation: v })} multiline hint="Optional info about stay or travel for guests" />
+                  <Field label="Accommodation Info" value={d.accommodation || ""} onChange={(v) => update({ accommodation: v })} multiline hint="Optional info about stay for guests" />
                 </div>
               </div>
               <div className="grid md:grid-cols-2 gap-3">
