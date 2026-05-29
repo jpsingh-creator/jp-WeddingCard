@@ -151,6 +151,8 @@
   background-clip: text;
   color: transparent;
   animation: shimmer 4s linear infinite;
+  padding-top: 0.2em;
+  padding-bottom: 0.3em;
 }
 
 .gold-text { color: var(--gold); }

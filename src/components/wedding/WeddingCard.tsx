@@ -1,5 +1,5 @@
 import { useSearch } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import couple from "@/assets/couple-cartoon.png";
 import silhouette from "@/assets/couple-silhouette.png";
 import mandala from "@/assets/mandala.png";
@@ -45,6 +45,22 @@ export function WeddingCard() {
   const [showEdit, setShowEdit] = useState(false);
   const startCurtain = () => setGaneshaDone(true);
 
+  // Secret admin trigger logic
+  const secretClicks = useRef(0);
+  const secretTimeout = useRef<ReturnType<typeof setTimeout>>();
+
+  const handleSecretClick = () => {
+    secretClicks.current += 1;
+    if (secretClicks.current >= 3) {
+      setShowEdit(true);
+      secretClicks.current = 0;
+    }
+    clearTimeout(secretTimeout.current);
+    secretTimeout.current = setTimeout(() => {
+      secretClicks.current = 0;
+    }, 1000);
+  };
+
   const editor = edit === EDIT_KEY;
 
   useEffect(() => {
@@ -84,14 +100,13 @@ export function WeddingCard() {
         className="pointer-events-none fixed -bottom-60 -left-40 w-[600px] opacity-10 animate-spin-reverse"
       />
 
-      {editor && (
-        <button
-          onClick={() => setShowEdit(true)}
-          className="fixed bottom-4 right-4 z-[80] bg-gold-grad text-maroon-deep font-label text-xs uppercase tracking-[0.2em] px-4 py-2 rounded-full shadow-gold active:scale-95"
-        >
-          Edit ✎
-        </button>
-      )}
+      {/* SECRET INVISIBLE ADMIN TRIGGER */}
+      {/* Rapidly click the very top-left corner of the screen 3 times to open the editor */}
+      <div 
+        className="fixed top-0 left-0 w-24 h-24 z-[100] cursor-default opacity-0"
+        onClick={handleSecretClick}
+        title=""
+      />
 
       {showEdit && (
         <EditPanel data={data} onSave={save} onClose={() => setShowEdit(false)} onReset={reset} />
@@ -120,13 +135,13 @@ export function WeddingCard() {
         </Reveal>
 
         <Reveal delay={500}>
-          <p className="font-script text-shimmer text-6xl md:text-8xl leading-[0.9] mt-2">
+          <p className="font-script text-shimmer text-6xl md:text-8xl leading-tight mt-2">
             {data.brideName}
           </p>
           <p className="font-display text-gold tracking-[0.5em] text-xs md:text-sm my-3">
             ✦ {t.weds} ✦
           </p>
-          <p className="font-script text-shimmer text-6xl md:text-8xl leading-[0.9]">
+          <p className="font-script text-shimmer text-6xl md:text-8xl leading-tight">
             {data.groomName}
           </p>
         </Reveal>
