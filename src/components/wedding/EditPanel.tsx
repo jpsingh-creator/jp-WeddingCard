@@ -137,6 +137,12 @@ export function EditPanel({
               </div>
             ))}
           </div>
+          <button
+            onClick={addEvent}
+            className="w-full mt-4 border border-dashed border-gold/50 text-gold-soft hover:text-gold hover:border-gold hover:bg-gold/5 py-3 rounded-xl font-label text-sm transition-colors flex items-center justify-center gap-2"
+          >
+            <span className="text-lg leading-none">+</span> Add New Event
+          </button>
         </div>
 
         <div className="pt-2">
