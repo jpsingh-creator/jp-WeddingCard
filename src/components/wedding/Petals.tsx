@@ -20,6 +20,8 @@ export function Petals() {
               background: hue,
               animation: `float-up ${dur}s linear ${delay}s infinite`,
               filter: "blur(0.3px) drop-shadow(0 0 4px rgba(255,200,100,0.4))",
+              willChange: "transform",
+              transform: "translateZ(0)",
             }}
           />
         );

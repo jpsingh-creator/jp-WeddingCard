@@ -71,6 +71,8 @@ export function GaneshaIntro({ onDone }: { onDone: () => void }) {
               filter: "blur(0.5px)",
               boxShadow: "0 0 8px var(--gold)",
               animation: `twinkle ${3 + (i % 5)}s ease-in-out ${(i * 0.2) % 4}s infinite`,
+              willChange: "opacity",
+              transform: "translateZ(0)",
             }}
           />
         ))}
@@ -85,7 +87,11 @@ export function GaneshaIntro({ onDone }: { onDone: () => void }) {
           <div className="relative animate-scale-in">
             <div
               className="absolute inset-0 rounded-full blur-3xl animate-pulse-glow"
-              style={{ background: "radial-gradient(circle, rgba(255,200,80,0.55), transparent 70%)" }}
+              style={{ 
+                background: "radial-gradient(circle, rgba(255,200,80,0.55), transparent 70%)",
+                willChange: "opacity",
+                transform: "translateZ(0)"
+              }}
             />
             <img
               src={ganesha}
@@ -103,6 +109,8 @@ export function GaneshaIntro({ onDone }: { onDone: () => void }) {
                 maxHeight: "32svh",
                 opacity: imgReady ? 1 : 0,
                 transition: "opacity 0.5s ease",
+                willChange: "opacity, filter",
+                transform: "translateZ(0)",
               }}
             />
           </div>
