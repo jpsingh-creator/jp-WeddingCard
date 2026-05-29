@@ -41,7 +41,7 @@ export function GaneshaIntro({ onDone }: { onDone: () => void }) {
 
   if (hidden) return null;
 
-  const introImageSize = "min(65vw, 40svh, 300px)";
+  const introImageSize = "min(56vw, 32svh, 260px)";
 
   return (
     <div
@@ -85,15 +85,6 @@ export function GaneshaIntro({ onDone }: { onDone: () => void }) {
           </p>
 
           <div className="relative animate-scale-in">
-            <div
-              className="absolute inset-0 animate-pulse-glow"
-              style={{ 
-                background: "radial-gradient(50% 50% at 50% 50%, rgba(255, 180, 50, 0.4) 0%, rgba(255, 180, 50, 0) 100%)",
-                willChange: "opacity",
-                transform: "scale(1.4) translateZ(0)",
-                pointerEvents: "none"
-              }}
-            />
             <img
               src={ganesha}
               alt="Lord Ganesha"
@@ -110,7 +101,8 @@ export function GaneshaIntro({ onDone }: { onDone: () => void }) {
                 maxHeight: "40svh",
                 opacity: imgReady ? 1 : 0,
                 transition: "opacity 0.5s ease",
-                willChange: "opacity, transform",
+                filter: "drop-shadow(0 0 15px rgba(255, 200, 80, 0.5))",
+                willChange: "opacity, filter, transform",
                 transform: "translateZ(0)",
               }}
             />
