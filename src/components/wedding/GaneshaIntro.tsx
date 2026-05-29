@@ -86,11 +86,12 @@ export function GaneshaIntro({ onDone }: { onDone: () => void }) {
 
           <div className="relative animate-scale-in">
             <div
-              className="absolute inset-0 rounded-full animate-pulse-glow"
+              className="absolute inset-0 animate-pulse-glow"
               style={{ 
-                background: "radial-gradient(circle, rgba(255,200,80,0.5), transparent 65%)",
+                background: "radial-gradient(50% 50% at 50% 50%, rgba(255, 180, 50, 0.4) 0%, rgba(255, 180, 50, 0) 100%)",
                 willChange: "opacity",
-                transform: "scale(1.2) translateZ(0)"
+                transform: "scale(1.4) translateZ(0)",
+                pointerEvents: "none"
               }}
             />
             <img
