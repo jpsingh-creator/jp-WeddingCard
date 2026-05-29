@@ -20,6 +20,24 @@ export function EditPanel({
     setD({ ...d, events });
   };
 
+  const addEvent = () => {
+    const newEvent: EventItem = {
+      id: "event-" + Date.now(),
+      name: "New Event",
+      emoji: "✨",
+      date: "New Date",
+      time: "New Time",
+      venue: "Venue Name",
+      address: "Address",
+      mapsQuery: "",
+    };
+    setD({ ...d, events: [...d.events, newEvent] });
+  };
+
+  const removeEvent = (id: string) => {
+    setD({ ...d, events: d.events.filter(e => e.id !== id) });
+  };
+
   return (
     <div className="fixed inset-0 z-[90] bg-black/70 backdrop-blur-sm flex items-start md:items-center justify-center p-3 overflow-auto">
       <div className="glass-card w-full max-w-2xl my-6 p-5 md:p-7 space-y-4">
@@ -37,11 +55,26 @@ export function EditPanel({
         <Field label="Invitation note" value={d.invitation} onChange={(v) => update({ invitation: v })} multiline />
 
         <div className="pt-2">
-          <h3 className="font-label uppercase tracking-[0.2em] text-gold text-xs mb-2">Events</h3>
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="font-label uppercase tracking-[0.2em] text-gold text-xs">Events</h3>
+            <button
+              onClick={addEvent}
+              className="text-gold-soft hover:text-gold text-xs font-label flex items-center gap-1"
+            >
+              <span>+</span> Add Event
+            </button>
+          </div>
           <div className="space-y-3">
             {d.events.map((ev, i) => (
-              <div key={ev.id} className="rounded-xl border border-gold/30 p-3 space-y-2 bg-black/20">
-                <div className="grid grid-cols-2 gap-2">
+              <div key={ev.id} className="relative rounded-xl border border-gold/30 p-3 space-y-2 bg-black/20">
+                <button
+                  onClick={() => removeEvent(ev.id)}
+                  className="absolute top-3 right-3 text-rose/70 hover:text-rose text-xs font-label"
+                  title="Remove this event"
+                >
+                  ✕
+                </button>
+                <div className="grid grid-cols-2 gap-2 pr-6">
                   <Field label="Name" value={ev.name} onChange={(v) => updateEvent(i, { name: v })} />
                   <Field label="Emoji" value={ev.emoji} onChange={(v) => updateEvent(i, { emoji: v })} />
                   <Field label="Date" value={ev.date} onChange={(v) => updateEvent(i, { date: v })} />
