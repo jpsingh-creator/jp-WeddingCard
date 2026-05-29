@@ -41,7 +41,7 @@ export function GaneshaIntro({ onDone }: { onDone: () => void }) {
 
   if (hidden) return null;
 
-  const introImageSize = "min(56vw, 32svh, 260px)";
+  const introImageSize = "min(65vw, 40svh, 300px)";
 
   return (
     <div
@@ -86,11 +86,11 @@ export function GaneshaIntro({ onDone }: { onDone: () => void }) {
 
           <div className="relative animate-scale-in">
             <div
-              className="absolute inset-0 rounded-full blur-3xl animate-pulse-glow"
+              className="absolute inset-0 rounded-full animate-pulse-glow"
               style={{ 
-                background: "radial-gradient(circle, rgba(255,200,80,0.55), transparent 70%)",
+                background: "radial-gradient(circle, rgba(255,200,80,0.5), transparent 65%)",
                 willChange: "opacity",
-                transform: "translateZ(0)"
+                transform: "scale(1.2) translateZ(0)"
               }}
             />
             <img
@@ -102,14 +102,14 @@ export function GaneshaIntro({ onDone }: { onDone: () => void }) {
               decoding="async"
               onLoad={() => setImgReady(true)}
               onError={() => setImgReady(true)}
-              className="relative object-contain drop-shadow-[0_20px_50px_rgba(0,0,0,0.7)]"
+              className="relative object-contain"
               style={{
                 width: introImageSize,
-                maxWidth: "260px",
-                maxHeight: "32svh",
+                maxWidth: "300px",
+                maxHeight: "40svh",
                 opacity: imgReady ? 1 : 0,
                 transition: "opacity 0.5s ease",
-                willChange: "opacity, filter",
+                willChange: "opacity, transform",
                 transform: "translateZ(0)",
               }}
             />
