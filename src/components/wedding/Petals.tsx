@@ -19,7 +19,7 @@ export function Petals() {
               height: size,
               background: hue,
               animation: `float-up ${dur}s linear ${delay}s infinite`,
-              boxShadow: "0 0 3px rgba(255,200,100,0.3)",
+              filter: "blur(0.3px) drop-shadow(0 0 4px rgba(255,200,100,0.4))",
             }}
           />
         );

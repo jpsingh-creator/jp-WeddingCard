@@ -68,7 +68,8 @@ export function GaneshaIntro({ onDone }: { onDone: () => void }) {
               width: 3 + (i % 4),
               height: 3 + (i % 4),
               background: "var(--gold)",
-              boxShadow: "0 0 4px var(--gold)",
+              filter: "blur(0.5px)",
+              boxShadow: "0 0 8px var(--gold)",
               animation: `twinkle ${3 + (i % 5)}s ease-in-out ${(i * 0.2) % 4}s infinite`,
             }}
           />
@@ -83,8 +84,8 @@ export function GaneshaIntro({ onDone }: { onDone: () => void }) {
 
           <div className="relative animate-scale-in">
             <div
-              className="absolute inset-0 rounded-full animate-pulse-glow"
-              style={{ background: "radial-gradient(circle, rgba(255,200,80,0.4) 0%, rgba(255,200,80,0) 70%)" }}
+              className="absolute inset-0 rounded-full blur-3xl animate-pulse-glow"
+              style={{ background: "radial-gradient(circle, rgba(255,200,80,0.55), transparent 70%)" }}
             />
             <img
               src={ganesha}
@@ -95,7 +96,7 @@ export function GaneshaIntro({ onDone }: { onDone: () => void }) {
               decoding="async"
               onLoad={() => setImgReady(true)}
               onError={() => setImgReady(true)}
-              className="relative object-contain"
+              className="relative object-contain drop-shadow-[0_20px_50px_rgba(0,0,0,0.7)]"
               style={{
                 width: introImageSize,
                 maxWidth: "260px",
