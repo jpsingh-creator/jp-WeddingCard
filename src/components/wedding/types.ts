@@ -9,6 +9,12 @@ export type EventItem = {
   emoji: string;
 };
 
+export type OtherFeature = {
+  id: string;
+  label: string;
+  url: string;
+};
+
 export type CardData = {
   brideName: string;
   brideParents: string;
@@ -19,6 +25,13 @@ export type CardData = {
   invitation: string;
   events: EventItem[];
   contactPhones: { label: string; phone: string }[];
+  otherFeatures: OtherFeature[];
+  brideGrandparents?: string;
+  groomGrandparents?: string;
+  accommodation?: string;
+  accommodationIcon?: string;
+  accommodationAddress?: string;
+  accommodationMapsQuery?: string;
 };
 
 export const DEFAULT_DATA: CardData = {
@@ -86,4 +99,11 @@ export const DEFAULT_DATA: CardData = {
     { label: "Bride's family", phone: "+91 98765 43210" },
     { label: "Groom's family", phone: "+91 98765 12345" },
   ],
+  otherFeatures: [],
+  brideGrandparents: "",
+  groomGrandparents: "",
+  accommodation: "",
+  accommodationIcon: "🏨",
+  accommodationAddress: "",
+  accommodationMapsQuery: "",
 };

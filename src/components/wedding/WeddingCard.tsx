@@ -176,8 +176,8 @@ export function WeddingCard() {
         </Reveal>
         <Reveal delay={500}>
           <div className="mt-8 grid md:grid-cols-2 gap-5">
-            <FamilyCard side={t.bride} name={data.brideName} parents={data.brideParents} />
-            <FamilyCard side={t.groom} name={data.groomName} parents={data.groomParents} />
+            <FamilyCard side={t.bride} name={data.brideName} parents={data.brideParents} grandparents={data.brideGrandparents} />
+            <FamilyCard side={t.groom} name={data.groomName} parents={data.groomParents} grandparents={data.groomGrandparents} />
           </div>
         </Reveal>
       </section>
@@ -194,6 +194,32 @@ export function WeddingCard() {
           <Countdown iso={data.weddingISO} />
         </Reveal>
       </section>
+
+      {/* OTHER FEATURES */}
+      {data.otherFeatures && data.otherFeatures.length > 0 && (
+        <section className="relative px-5 py-10 max-w-3xl mx-auto text-center">
+          <Reveal>
+            <div className="divider-ornate font-label text-xs tracking-[0.3em]">Other Features</div>
+          </Reveal>
+          <div className="flex flex-wrap justify-center gap-6 mt-8">
+            {data.otherFeatures.map((feat, i) => (
+              <Reveal key={feat.id || i} delay={200 + (i * 100)}>
+                <a href={feat.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-3 glass-card text-gold font-label tracking-wider text-xs md:text-sm uppercase px-6 py-4 rounded-full shadow-gold hover:-translate-y-1 hover:bg-gold/10 active:scale-95 transition-all">
+                  {feat.label.toLowerCase().includes("live") ? (
+                    <span className="relative flex h-3 w-3">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+                    </span>
+                  ) : (
+                    <span>✧</span>
+                  )}
+                  {feat.label}
+                </a>
+              </Reveal>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* EVENTS */}
       <section className="relative px-5 py-20 max-w-3xl mx-auto">
@@ -235,6 +261,34 @@ export function WeddingCard() {
           </div>
         </div>
       </section>
+
+      {/* ACCOMMODATION */}
+      {data.accommodation && (
+        <section className="relative px-5 py-10 max-w-2xl mx-auto text-center">
+          <Reveal>
+            <div className="divider-ornate font-label text-xs tracking-[0.3em]">Accommodation</div>
+          </Reveal>
+          <Reveal delay={200}>
+            <div className="glass-card p-6 md:p-8 mt-8 border border-gold/20 flex flex-col items-center">
+              <span className="text-4xl mb-4 block animate-bounce">{data.accommodationIcon || '🏨'}</span>
+              <p className="font-serif italic text-lg leading-relaxed text-ivory/90 whitespace-pre-line">
+                {data.accommodation}
+              </p>
+              {data.accommodationAddress && (
+                <p className="font-serif text-sm text-ivory/70 mt-4">{data.accommodationAddress}</p>
+              )}
+              {data.accommodationMapsQuery && (
+                <button
+                  onClick={() => openDirections(data.accommodationMapsQuery!)}
+                  className="mt-6 inline-flex items-center gap-2 bg-gold-grad text-maroon-deep font-label tracking-wider text-xs uppercase px-5 py-2.5 rounded-full shadow-gold active:scale-95 transition-transform"
+                >
+                  <span>📍</span> {t.getDirections}
+                </button>
+              )}
+            </div>
+          </Reveal>
+        </section>
+      )}
 
       {/* PEACOCK BLESSING */}
       <section className="relative px-5 py-20 text-center max-w-xl mx-auto">
@@ -293,12 +347,17 @@ export function WeddingCard() {
   );
 }
 
-function FamilyCard({ side, name, parents }: { side: string; name: string; parents: string }) {
+function FamilyCard({ side, name, parents, grandparents }: { side: string; name: string; parents: string; grandparents?: string }) {
   return (
-    <div className="glass-card p-5 transition-transform active:scale-95">
+    <div className="glass-card p-5 transition-transform active:scale-95 flex flex-col h-full">
       <p className="font-label uppercase tracking-[0.3em] text-[10px] text-gold-soft">{side}</p>
-      <p className="font-script text-shimmer text-4xl mt-1">{name}</p>
-      <p className="font-serif italic text-ivory/80 text-sm mt-2">{parents}</p>
+      <div className="flex-1 flex flex-col justify-center py-2">
+        {grandparents && (
+          <p className="font-serif italic text-gold-soft/80 text-xs mb-2 leading-relaxed">{grandparents}</p>
+        )}
+        <p className="font-script text-shimmer text-4xl mt-1 mb-2">{name}</p>
+        <p className="font-serif italic text-ivory/80 text-sm mt-1">{parents}</p>
+      </div>
     </div>
   );
 }

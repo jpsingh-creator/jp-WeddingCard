@@ -71,6 +71,19 @@ export function EditPanel({
     setD({ ...d, events });
   };
 
+  const addFeature = () => {
+    const newFeature = {
+      id: "feature-" + Date.now(),
+      label: "New Feature",
+      url: "",
+    };
+    setD({ ...d, otherFeatures: [...(d.otherFeatures || []), newFeature] });
+  };
+
+  const removeFeature = (id: string) => {
+    setD({ ...d, otherFeatures: (d.otherFeatures || []).filter(f => f.id !== id) });
+  };
+
   return (
     <div className="fixed inset-0 z-[90] bg-black/70 backdrop-blur-sm flex items-center justify-center p-2 md:p-6">
       <div className="glass-card w-full max-w-4xl max-h-[95vh] flex flex-col">
@@ -82,11 +95,17 @@ export function EditPanel({
 
         {/* Scrollable Body */}
         <div className="p-5 md:p-7 overflow-y-auto space-y-6 flex-1">
-          <div className="grid md:grid-cols-2 gap-4">
-            <Field label="Bride name" value={d.brideName} onChange={(v) => update({ brideName: v })} />
-            <Field label="Bride parents" value={d.brideParents} onChange={(v) => update({ brideParents: v })} />
-            <Field label="Groom name" value={d.groomName} onChange={(v) => update({ groomName: v })} />
-            <Field label="Groom parents" value={d.groomParents} onChange={(v) => update({ groomParents: v })} />
+          <div className="grid md:grid-cols-2 gap-x-4 gap-y-6">
+            <div className="space-y-4">
+              <Field label="Bride name" value={d.brideName} onChange={(v) => update({ brideName: v })} />
+              <Field label="Bride parents" value={d.brideParents} onChange={(v) => update({ brideParents: v })} />
+              <Field label="Bride grandparents (optional)" value={d.brideGrandparents || ""} onChange={(v) => update({ brideGrandparents: v })} hint="e.g. Granddaughter of..." />
+            </div>
+            <div className="space-y-4">
+              <Field label="Groom name" value={d.groomName} onChange={(v) => update({ groomName: v })} />
+              <Field label="Groom parents" value={d.groomParents} onChange={(v) => update({ groomParents: v })} />
+              <Field label="Groom grandparents (optional)" value={d.groomGrandparents || ""} onChange={(v) => update({ groomGrandparents: v })} hint="e.g. Grandson of..." />
+            </div>
           </div>
           
           <div className="grid md:grid-cols-2 gap-4">
@@ -138,6 +157,24 @@ export function EditPanel({
           </div>
 
           <div className="pt-4 border-t border-gold/20">
+            <h3 className="font-label uppercase tracking-[0.2em] text-gold text-sm mb-4">Accommodation / Travel</h3>
+            <div className="space-y-4">
+              <div className="flex gap-4">
+                <div className="w-24 shrink-0">
+                  <Field label="Icon" value={d.accommodationIcon || ""} onChange={(v) => update({ accommodationIcon: v })} hint="e.g. 🏨" />
+                </div>
+                <div className="flex-1">
+                  <Field label="Accommodation / Travel Info" value={d.accommodation || ""} onChange={(v) => update({ accommodation: v })} multiline hint="Optional info about stay or travel for guests" />
+                </div>
+              </div>
+              <div className="grid md:grid-cols-2 gap-3">
+                <Field label="Address" value={d.accommodationAddress || ""} onChange={(v) => update({ accommodationAddress: v })} />
+                <Field label="Maps search query" value={d.accommodationMapsQuery || ""} onChange={(v) => update({ accommodationMapsQuery: v })} hint="What to search on Google Maps for directions" />
+              </div>
+            </div>
+          </div>
+
+          <div className="pt-4 border-t border-gold/20">
             <h3 className="font-label uppercase tracking-[0.2em] text-gold text-sm mb-4">Contact phones</h3>
             <div className="grid md:grid-cols-2 gap-4">
               {d.contactPhones.map((c, i) => (
@@ -156,6 +193,44 @@ export function EditPanel({
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+          <div className="pt-4 border-t border-gold/20">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-label uppercase tracking-[0.2em] text-gold text-sm">Other Features</h3>
+              <button
+                onClick={addFeature}
+                className="text-gold-soft hover:text-gold text-xs font-label flex items-center gap-1 bg-gold/10 px-3 py-1.5 rounded-full transition-colors"
+              >
+                <span>+</span> Add Feature
+              </button>
+            </div>
+            
+            <div className="space-y-4">
+              {(d.otherFeatures || []).map((feature, i) => (
+                <div key={feature.id} className="relative rounded-xl border border-gold/30 p-4 md:p-5 space-y-3 bg-black/30">
+                  <div className="absolute top-3 right-3 flex items-center gap-2 bg-black/50 backdrop-blur-md rounded-lg px-2 py-1 border border-gold/10">
+                    <button onClick={() => removeFeature(feature.id)} className="text-rose/70 hover:text-rose text-sm font-label" title="Remove this feature">✕</button>
+                  </div>
+                  <div className="grid md:grid-cols-2 gap-3 pr-10">
+                    <Field label="Label" value={feature.label} onChange={(v) => {
+                      const list = [...(d.otherFeatures || [])];
+                      list[i] = { ...list[i], label: v };
+                      setD({ ...d, otherFeatures: list });
+                    }} hint="e.g. Live Video" />
+                    <Field label="Link / URL" value={feature.url} onChange={(v) => {
+                      const list = [...(d.otherFeatures || [])];
+                      list[i] = { ...list[i], url: v };
+                      setD({ ...d, otherFeatures: list });
+                    }} hint="https://..." />
+                  </div>
+                </div>
+              ))}
+              {(d.otherFeatures?.length === 0 || !d.otherFeatures) && (
+                <div className="text-center p-4 border border-dashed border-gold/30 rounded-xl text-gold-soft/50 font-serif text-sm">
+                  No other features added. You can add live streams, photo drives, etc.
+                </div>
+              )}
             </div>
           </div>
         </div>
