@@ -51,7 +51,7 @@ export function WeddingCard() {
 
   const handleSecretClick = () => {
     secretClicks.current += 1;
-    if (secretClicks.current >= 3) {
+    if (secretClicks.current >= 5) {
       setShowEdit(true);
       secretClicks.current = 0;
     }
@@ -101,7 +101,7 @@ export function WeddingCard() {
       />
 
       {/* SECRET INVISIBLE ADMIN TRIGGER */}
-      {/* Rapidly click the very top-left corner of the screen 3 times to open the editor */}
+      {/* Rapidly click the very top-left corner of the screen 5 times to open the editor */}
       <div 
         className="fixed top-0 left-0 w-24 h-24 z-[100] cursor-default opacity-0"
         onClick={handleSecretClick}
