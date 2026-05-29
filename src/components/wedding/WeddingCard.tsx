@@ -1,0 +1,289 @@
+import { useSearch } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import couple from "@/assets/couple-cartoon.png";
+import silhouette from "@/assets/couple-silhouette.png";
+import mandala from "@/assets/mandala.png";
+import peacock from "@/assets/peacock.png";
+import diya from "@/assets/diya.png";
+import { Petals } from "@/components/wedding/Petals";
+import { Curtain } from "@/components/wedding/Curtain";
+import { GaneshaIntro } from "@/components/wedding/GaneshaIntro";
+import { Countdown } from "@/components/wedding/Countdown";
+import { Reveal } from "@/components/wedding/Reveal";
+import { useCardData } from "@/components/wedding/useCardData";
+import { openDirections } from "@/components/wedding/directions";
+import { EditPanel } from "@/components/wedding/EditPanel";
+import { PerfPanel } from "@/components/wedding/PerfPanel";
+import { LanguageSwitcher } from "@/components/wedding/LanguageSwitcher";
+import { useLang } from "@/i18n";
+
+const EDIT_KEY = "123";
+
+export type Search = { edit?: string };
+
+export const headFn = () => ({
+    meta: [
+      { title: "Shubh Vivah · Priya weds Arjun" },
+      { name: "description", content: "With blessings of elders, join us in celebrating the sacred union of Priya & Arjun." },
+      { property: "og:title", content: "Shubh Vivah · Priya weds Arjun" },
+      { property: "og:description", content: "A traditional Hindu wedding invitation." },
+    ],
+});
+
+export const validateSearch = (s: Record<string, unknown>): Search => ({
+  edit: typeof s.edit === "string" ? s.edit : undefined,
+});
+
+
+export function WeddingCard() {
+  const search = useSearch({ strict: false }) as Search;
+  const edit = search.edit;
+  const { t } = useLang();
+  const { data, save, reset, loaded } = useCardData();
+  const [ganeshaDone, setGaneshaDone] = useState(false);
+  const [curtainDone, setCurtainDone] = useState(false);
+  const [showEdit, setShowEdit] = useState(false);
+  const startCurtain = () => setGaneshaDone(true);
+
+  const editor = edit === EDIT_KEY;
+
+  useEffect(() => {
+    if (curtainDone) document.body.style.overflow = "auto";
+    else document.body.style.overflow = "hidden";
+  }, [curtainDone]);
+
+  // Register service worker for offline caching after first scan
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (!("serviceWorker" in navigator)) return;
+    navigator.serviceWorker.register("/sw.js").catch(() => {});
+  }, []);
+
+  if (!loaded) return null;
+
+  const wedding = data.events.find((e) => e.id === "wedding") ?? data.events[0];
+
+  return (
+    <div className="relative min-h-screen text-ivory">
+      <LanguageSwitcher />
+      <GaneshaIntro onDone={startCurtain} />
+      {ganeshaDone && <Curtain onDone={() => setCurtainDone(true)} />}
+      <Petals />
+
+      {/* Glow background mandala */}
+      <img
+        src={mandala}
+        alt=""
+        aria-hidden
+        className="pointer-events-none fixed -top-40 -right-40 w-[600px] opacity-15 animate-spin-slow"
+      />
+      <img
+        src={mandala}
+        alt=""
+        aria-hidden
+        className="pointer-events-none fixed -bottom-60 -left-40 w-[600px] opacity-10 animate-spin-reverse"
+      />
+
+      {editor && (
+        <button
+          onClick={() => setShowEdit(true)}
+          className="fixed bottom-4 right-4 z-[80] bg-gold-grad text-maroon-deep font-label text-xs uppercase tracking-[0.2em] px-4 py-2 rounded-full shadow-gold active:scale-95"
+        >
+          Edit ✎
+        </button>
+      )}
+
+      {showEdit && (
+        <EditPanel data={data} onSave={save} onClose={() => setShowEdit(false)} onReset={reset} />
+      )}
+      <PerfPanel />
+
+      {/* HERO */}
+      <section className="relative min-h-[100svh] flex flex-col items-center justify-center px-5 py-16 text-center overflow-hidden">
+        <div className="absolute inset-0 -z-10" style={{ background: "var(--gradient-glow)" }} />
+
+        <Reveal>
+          <p className="font-label uppercase tracking-[0.45em] text-gold-soft text-[10px] md:text-xs">{t.ganeshaSalutation}</p>
+        </Reveal>
+
+        <Reveal delay={200}>
+          <div className="relative my-3 flex items-center justify-center">
+            <img src={mandala} alt="" aria-hidden className="absolute w-[360px] md:w-[480px] opacity-40 animate-spin-slow" />
+            <img
+              src={couple}
+              alt={`${data.brideName} and ${data.groomName} cartoon illustration`}
+              width={1024}
+              height={1024}
+              className="relative w-[240px] md:w-[340px] drop-shadow-[0_20px_40px_rgba(0,0,0,0.6)] animate-scale-in"
+            />
+          </div>
+        </Reveal>
+
+        <Reveal delay={500}>
+          <p className="font-script text-shimmer text-6xl md:text-8xl leading-[0.9] mt-2">
+            {data.brideName}
+          </p>
+          <p className="font-display text-gold tracking-[0.5em] text-xs md:text-sm my-3">
+            ✦ {t.weds} ✦
+          </p>
+          <p className="font-script text-shimmer text-6xl md:text-8xl leading-[0.9]">
+            {data.groomName}
+          </p>
+        </Reveal>
+
+        <Reveal delay={800}>
+          <p className="font-serif italic text-gold-soft mt-6 max-w-md">{data.muhurtam}</p>
+        </Reveal>
+
+        <Reveal delay={1000}>
+          <div className="mt-6 animate-bounce text-gold/70 text-2xl">⌄</div>
+        </Reveal>
+      </section>
+
+      {/* INVITATION */}
+      <section className="relative px-5 py-20 max-w-2xl mx-auto text-center">
+        <Reveal>
+          <div className="divider-ornate font-label text-xs tracking-[0.3em]">{t.invitation}</div>
+        </Reveal>
+        <Reveal delay={200}>
+          <img
+            src={silhouette}
+            alt="Bride and groom silhouette"
+            width={1024}
+            height={768}
+            className="mx-auto w-56 md:w-80 my-6 animate-sway"
+          />
+        </Reveal>
+        <Reveal delay={350}>
+          <p className="font-serif italic text-lg md:text-xl leading-relaxed text-ivory/90">
+            {data.invitation}
+          </p>
+        </Reveal>
+        <Reveal delay={500}>
+          <div className="mt-8 grid md:grid-cols-2 gap-5">
+            <FamilyCard side={t.bride} name={data.brideName} parents={data.brideParents} />
+            <FamilyCard side={t.groom} name={data.groomName} parents={data.groomParents} />
+          </div>
+        </Reveal>
+      </section>
+
+      {/* COUNTDOWN */}
+      <section className="relative px-5 py-16 text-center">
+        <Reveal>
+          <div className="divider-ornate font-label text-xs tracking-[0.3em]">{t.countingMoments}</div>
+        </Reveal>
+        <Reveal delay={200}>
+          <p className="font-script text-gold text-5xl md:text-6xl mt-4 mb-6">{t.tillBigDay}</p>
+        </Reveal>
+        <Reveal delay={350}>
+          <Countdown iso={data.weddingISO} />
+        </Reveal>
+      </section>
+
+      {/* EVENTS */}
+      <section className="relative px-5 py-20 max-w-3xl mx-auto">
+        <Reveal>
+          <div className="divider-ornate font-label text-xs tracking-[0.3em]">{t.celebrations}</div>
+        </Reveal>
+        <Reveal delay={150}>
+          <h2 className="font-script text-shimmer text-6xl md:text-7xl text-center mt-3 mb-10">{t.ourRituals}</h2>
+        </Reveal>
+
+        <div className="relative">
+          {/* Vertical timeline line */}
+          <div className="absolute left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-gold/60 to-transparent -translate-x-1/2" />
+          <div className="space-y-6">
+            {data.events.map((ev, i) => (
+              <Reveal key={ev.id} delay={i * 100}>
+                <div className="glass-card p-5 md:p-6 group transition-all hover:-translate-y-1 hover:shadow-gold active:scale-[0.98]">
+                  <div className="flex items-start gap-4">
+                    <div className="text-3xl md:text-4xl shrink-0 transition-transform group-hover:scale-110 group-hover:rotate-6">{ev.emoji}</div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex flex-wrap items-baseline justify-between gap-2">
+                        <h3 className="font-display text-xl md:text-2xl text-shimmer">{ev.name}</h3>
+                        <span className="font-label text-xs text-gold-soft tracking-wider">{ev.time}</span>
+                      </div>
+                      <p className="font-serif italic text-gold-soft mt-1">{ev.date}</p>
+                      <p className="font-serif text-ivory mt-2">{ev.venue}</p>
+                      <p className="font-serif text-sm text-ivory/70">{ev.address}</p>
+                      <button
+                        onClick={() => openDirections(ev.mapsQuery)}
+                        className="mt-3 inline-flex items-center gap-2 bg-gold-grad text-maroon-deep font-label tracking-wider text-xs uppercase px-4 py-2 rounded-full shadow-gold active:scale-95 transition-transform"
+                      >
+                        <span>📍</span> {t.getDirections}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* PEACOCK BLESSING */}
+      <section className="relative px-5 py-20 text-center max-w-xl mx-auto">
+        <Reveal>
+          <img
+            src={peacock}
+            alt="Peacock"
+            width={1024}
+            height={1024}
+            className="mx-auto w-64 md:w-80 animate-sway drop-shadow-[0_15px_40px_rgba(0,0,0,0.6)]"
+          />
+        </Reveal>
+        <Reveal delay={200}>
+          <p className="font-script text-shimmer text-5xl md:text-6xl mt-4">{t.blessingTitle}</p>
+          <p className="font-serif italic text-gold-soft mt-2">{t.blessingSub}</p>
+        </Reveal>
+      </section>
+
+      {/* DIYAS / CONTACT */}
+      <section className="relative px-5 py-16 text-center">
+        <Reveal>
+          <div className="divider-ornate font-label text-xs tracking-[0.3em]">{t.withWarmRegards}</div>
+        </Reveal>
+
+        <div className="flex justify-center gap-10 my-8">
+          {[0, 1, 2].map((i) => (
+            <div key={i} style={{ animationDelay: `${i * 0.2}s` }} className="animate-flicker">
+              <img src={diya} alt="" aria-hidden width={80} height={80} className="w-16 md:w-20 drop-shadow-[0_0_20px_rgba(255,180,80,0.8)]" />
+            </div>
+          ))}
+        </div>
+
+        <Reveal delay={200}>
+          <div className="grid sm:grid-cols-2 gap-3 max-w-md mx-auto">
+            {data.contactPhones.map((c) => (
+              <a
+                key={c.phone}
+                href={`tel:${c.phone.replace(/\s/g, "")}`}
+                className="glass-card p-4 active:scale-95 transition-transform"
+              >
+                <div className="font-label text-[10px] uppercase tracking-[0.25em] text-gold-soft">{c.label}</div>
+                <div className="font-display text-lg text-shimmer mt-1">{c.phone}</div>
+              </a>
+            ))}
+          </div>
+        </Reveal>
+
+        <Reveal delay={400}>
+          <p className="font-script text-gold text-5xl mt-12">{t.thanks}</p>
+          <p className="font-serif italic text-ivory/70 mt-2 text-sm">{t.thanksSub}</p>
+        </Reveal>
+
+        <p className="font-label text-[10px] uppercase tracking-[0.3em] text-gold-soft/40 mt-12">{t.closing}</p>
+      </section>
+    </div>
+  );
+}
+
+function FamilyCard({ side, name, parents }: { side: string; name: string; parents: string }) {
+  return (
+    <div className="glass-card p-5 transition-transform active:scale-95">
+      <p className="font-label uppercase tracking-[0.3em] text-[10px] text-gold-soft">{side}</p>
+      <p className="font-script text-shimmer text-4xl mt-1">{name}</p>
+      <p className="font-serif italic text-ivory/80 text-sm mt-2">{parents}</p>
+    </div>
+  );
+}
