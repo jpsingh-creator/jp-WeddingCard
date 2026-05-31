@@ -86,24 +86,53 @@ export function EditPanel({
 
   // ——— Memories ———
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
 
-  const addMemories = (files: FileList | null) => {
+  const addMemories = async (files: FileList | null) => {
     if (!files) return;
-    Array.from(files).forEach((file) => {
-      const reader = new FileReader();
-      reader.onload = () => {
-        const dataUrl = reader.result as string;
-        const mediaType: 'image' | 'video' = file.type.startsWith('video') ? 'video' : 'image';
-        const newMemory: MemoryItem = {
-          id: 'memory-' + Date.now() + '-' + Math.random().toString(36).slice(2, 6),
-          dataUrl,
-          caption: '',
-          mediaType,
-        };
-        setD((prev) => ({ ...prev, memories: [...(prev.memories || []), newMemory] }));
+    setUploading(true);
+
+    for (const file of Array.from(files)) {
+      const mediaType: 'image' | 'video' = file.type.startsWith('video') ? 'video' : 'image';
+      const ext = file.name.split('.').pop() || (mediaType === 'video' ? 'mp4' : 'jpg');
+      const uniqueName = `memory-${Date.now()}-${Math.random().toString(36).slice(2, 6)}.${ext}`;
+      const r2Key = `memories/${uniqueName}`;
+
+      let dataUrl = '';
+
+      try {
+        // Try uploading to R2 (only works on the deployed site)
+        const res = await fetch(`/api/media/${r2Key}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': file.type },
+          body: file,
+        });
+
+        if (res.ok) {
+          // Success — store the R2 URL path instead of base64
+          dataUrl = `/api/media/${r2Key}`;
+        } else {
+          throw new Error('R2 upload failed');
+        }
+      } catch {
+        // Fallback for localhost: store as base64
+        dataUrl = await new Promise<string>((resolve) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result as string);
+          reader.readAsDataURL(file);
+        });
+      }
+
+      const newMemory: MemoryItem = {
+        id: 'memory-' + Date.now() + '-' + Math.random().toString(36).slice(2, 6),
+        dataUrl,
+        caption: '',
+        mediaType,
       };
-      reader.readAsDataURL(file);
-    });
+      setD((prev) => ({ ...prev, memories: [...(prev.memories || []), newMemory] }));
+    }
+
+    setUploading(false);
   };
 
   const removeMemory = (id: string) => {
@@ -288,9 +317,10 @@ export function EditPanel({
               <h3 className="font-label uppercase tracking-[0.2em] text-gold text-sm">📸 Memories Slideshow</h3>
               <button
                 onClick={() => fileInputRef.current?.click()}
-                className="text-gold-soft hover:text-gold text-xs font-label flex items-center gap-1 bg-gold/10 px-3 py-1.5 rounded-full transition-colors"
+                disabled={uploading}
+                className="text-gold-soft hover:text-gold text-xs font-label flex items-center gap-1 bg-gold/10 px-3 py-1.5 rounded-full transition-colors disabled:opacity-50"
               >
-                <span>+</span> Add Photos / Videos
+                {uploading ? '⏳ Uploading...' : <><span>+</span> Add Photos / Videos</>}
               </button>
               <input
                 ref={fileInputRef}
@@ -301,6 +331,13 @@ export function EditPanel({
                 onChange={(e) => addMemories(e.target.files)}
               />
             </div>
+
+            {uploading && (
+              <div className="flex items-center gap-3 p-4 rounded-xl border border-gold/30 bg-gold/5 mb-3">
+                <div className="w-5 h-5 border-2 border-gold border-t-transparent rounded-full animate-spin" />
+                <span className="font-serif text-sm text-gold">Uploading to cloud storage...</span>
+              </div>
+            )}
 
             {(d.memories && d.memories.length > 0) ? (
               <div className="space-y-3">
@@ -350,13 +387,14 @@ export function EditPanel({
 
             <button
               onClick={() => fileInputRef.current?.click()}
-              className="w-full mt-3 border border-dashed border-gold/50 text-gold-soft hover:text-gold hover:border-gold hover:bg-gold/10 py-3 rounded-xl font-label text-sm transition-colors flex items-center justify-center gap-2"
+              disabled={uploading}
+              className="w-full mt-3 border border-dashed border-gold/50 text-gold-soft hover:text-gold hover:border-gold hover:bg-gold/10 py-3 rounded-xl font-label text-sm transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
             >
-              <span className="text-xl leading-none">+</span> Add from Device
+              <span className="text-xl leading-none">+</span> {uploading ? 'Uploading...' : 'Add from Device'}
             </button>
 
             <p className="text-[10px] text-gold-soft/30 mt-2 text-center font-serif">
-              💡 Tip: High-quality photos and videos are supported! (Stored securely on your device).
+              💡 Tip: High-quality photos and videos are supported! On the live site, media is saved to the cloud database.
             </p>
           </div>
         </div>

@@ -51,6 +51,37 @@ export const Route = createFileRoute("/api/media/$")({
           return new Response("Internal Server Error", { status: 500 });
         }
       },
+      PUT: async ({ request, params }) => {
+        const key = decodeURIComponent(params._splat || "");
+        
+        let bucket: any = (process.env as any).WEDDING_MEDIA;
+        try {
+          const { getEvent } = await import("vinxi/http");
+          const event = getEvent();
+          if (event.context?.cloudflare?.env?.WEDDING_MEDIA) {
+            bucket = event.context.cloudflare.env.WEDDING_MEDIA;
+          }
+        } catch (e) {}
+
+        if (!bucket) {
+          console.warn("R2 bucket WEDDING_MEDIA is not bound. Upload failed on localhost.");
+          return new Response("R2 not configured locally", { status: 500 });
+        }
+
+        try {
+          const contentType = request.headers.get("Content-Type") || "application/octet-stream";
+          
+          // Put the file into R2 bucket
+          await bucket.put(key, request.body, {
+            httpMetadata: { contentType },
+          });
+
+          return new Response("Uploaded successfully", { status: 200 });
+        } catch (e) {
+          console.error("Error uploading to R2:", e);
+          return new Response("Upload Error", { status: 500 });
+        }
+      },
     },
   },
 });
