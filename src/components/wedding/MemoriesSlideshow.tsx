@@ -18,9 +18,11 @@ export function MemoriesSlideshow({ memories }: { memories: MemoryItem[] }) {
   const [current, setCurrent] = useState(0);
   const [paused, setPaused] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [isMuted, setIsMuted] = useState(true); // Default to muted for robust autoplay
   const timerRef = useRef<ReturnType<typeof setTimeout>>(null!);
   const touchStart = useRef<number>(0);
   const containerRef = useRef<HTMLDivElement>(null);
+  const videoRefs = useRef<Record<string, HTMLVideoElement>>({});
 
   const count = memories.length;
 
@@ -40,9 +42,41 @@ export function MemoriesSlideshow({ memories }: { memories: MemoryItem[] }) {
   // Auto-advance
   useEffect(() => {
     if (paused || count <= 1) return;
+    
+    const currentMemory = memories[current];
+    if (currentMemory && currentMemory.mediaType === 'video') {
+      // For videos, wait for the video to end instead of a fixed timer
+      return;
+    }
+
     timerRef.current = setTimeout(next, SLIDE_DURATION);
     return () => clearTimeout(timerRef.current);
-  }, [current, paused, count, next]);
+  }, [current, paused, count, next, memories]);
+
+  // Video playback manager
+  useEffect(() => {
+    Object.keys(videoRefs.current).forEach((id) => {
+      const vid = videoRefs.current[id];
+      if (!vid) return;
+      const isCurrentVid = memories[current]?.id === id;
+
+      vid.muted = isMuted;
+
+      if (isCurrentVid) {
+        if (vid.paused) {
+          vid.currentTime = 0;
+          vid.play().catch(() => {
+            // Autoplay policy fallback: if unmuted play is blocked, mute and play
+            setIsMuted(true);
+            vid.muted = true;
+            vid.play().catch(() => {});
+          });
+        }
+      } else {
+        vid.pause();
+      }
+    });
+  }, [current, isMuted, memories]);
 
   // Touch swipe handlers
   const onTouchStart = (e: React.TouchEvent) => {
@@ -104,10 +138,16 @@ export function MemoriesSlideshow({ memories }: { memories: MemoryItem[] }) {
                     <video
                       src={item.dataUrl}
                       className="memories-media"
-                      autoPlay={isActive}
-                      muted
-                      loop
                       playsInline
+                      muted={isMuted}
+                      onEnded={isActive ? next : undefined}
+                      ref={(el) => {
+                        if (el) {
+                          videoRefs.current[item.id] = el;
+                        } else {
+                          delete videoRefs.current[item.id];
+                        }
+                      }}
                       style={{
                         transform: isActive ? itemKb.to : itemKb.from,
                       }}
@@ -133,6 +173,31 @@ export function MemoriesSlideshow({ memories }: { memories: MemoryItem[] }) {
                   "{mem.caption}"
                 </p>
               </div>
+            )}
+
+            {/* Mute toggle for videos */}
+            {mem.mediaType === "video" && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsMuted(!isMuted);
+                }}
+                className="absolute top-4 right-4 z-20 bg-black/40 backdrop-blur-md rounded-full p-2 text-ivory/80 hover:text-gold hover:bg-black/60 transition-all"
+                aria-label={isMuted ? "Unmute video" : "Mute video"}
+              >
+                {isMuted ? (
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M11 5L6 9H2v6h4l5 4V5z"></path>
+                    <line x1="23" y1="9" x2="17" y2="15"></line>
+                    <line x1="17" y1="9" x2="23" y2="15"></line>
+                  </svg>
+                ) : (
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M11 5L6 9H2v6h4l5 4V5z"></path>
+                    <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                  </svg>
+                )}
+              </button>
             )}
 
             {/* Navigation arrows (desktop) */}

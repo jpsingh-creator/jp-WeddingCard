@@ -458,7 +458,8 @@ html {
 /* ===== Memories Slideshow ===== */
 .memories-slideshow-container {
   position: relative;
-  max-width: 600px;
+  width: 100%;
+  max-width: min(500px, 70vh * 0.75); /* Ensures the 3:4 aspect ratio never exceeds 70% of screen height */
   margin: 0 auto;
 }
 
