@@ -96,7 +96,7 @@ export function EditPanel({
       const mediaType: 'image' | 'video' = file.type.startsWith('video') ? 'video' : 'image';
       const ext = file.name.split('.').pop() || (mediaType === 'video' ? 'mp4' : 'jpg');
       const uniqueName = `memory-${Date.now()}-${Math.random().toString(36).slice(2, 6)}.${ext}`;
-      const r2Key = `memories/${uniqueName}`;
+      const r2Key = `photos/${uniqueName}`;
 
       let dataUrl = '';
 
