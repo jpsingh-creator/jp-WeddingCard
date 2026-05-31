@@ -274,7 +274,64 @@ export const DATA_BY_LANG: Record<LangCode, Partial<CardData>> = {
       { label: "వరుని కుటుంబం", phone: "+91 98765 12345" },
     ],
   },
-  ta: {},
-  kn: {},
-  ml: {},
+  ta: {
+    brideName: "பார்வதி",
+    brideParents: "ஸ்ரீ ஹிமவான் & திருமதி மேனா ஆகியோரின் மகள்",
+    groomName: "சிவா",
+    groomParents: "கைலாயத்தின் தெய்வீக வம்சத்தின் மகன்",
+    muhurtam: "வியாழன், 26 நவம்பர் 2026 · காலை 10:30",
+    invitation:
+      "இறைவன் மற்றும் எங்கள் அன்பான பெரியோர்களின் ஆசிகளுடன், எங்கள் அன்பு குழந்தைகளின் சுப திருமண விழாவிற்கு உங்களை மகிழ்ச்சியுடன் அழைக்கிறோம்.",
+    events: [
+      { id: "haldi", name: "ஹல்தி", date: "24 நவம்பர் 2026", time: "காலை 10:00", venue: "சர்மா இல்லம்", address: "ப்ளாட் 14, ஜூப்ளி ஹில்ஸ், ஹைதராபாத்", mapsQuery: "Jubilee Hills Hyderabad", emoji: "🌼" },
+      { id: "mehndi", name: "மெஹந்தி", date: "24 நவம்பர் 2026", time: "மாலை 5:00", venue: "சர்மா இல்ல புல்வெளி", address: "ப்ளாட் 14, ஜூப்ளி ஹில்ஸ், ஹைதராபாத்", mapsQuery: "Jubilee Hills Hyderabad", emoji: "🌿" },
+      { id: "sangeet", name: "சங்கீத்", date: "25 நவம்பர் 2026", time: "மாலை 7:30", venue: "தாஜ் கிருஷ்ணா பால்ரூம்", address: "பஞ்சாரா ஹில்ஸ், ஹைதராபாத்", mapsQuery: "Taj Krishna Banjara Hills Hyderabad", emoji: "🎶" },
+      { id: "wedding", name: "திருமணம்", date: "26 நவம்பர் 2026", time: "காலை 10:30", venue: "ஸ்ரீ வெங்கடேஸ்வரா கல்யாண மண்டபம்", address: "ரோடு நெ. 12, பஞ்சாரா ஹில்ஸ், ஹைதராபாத்", mapsQuery: "Sri Venkateshwara Kalyana Mandapam Banjara Hills Hyderabad", emoji: "🪔" },
+      { id: "reception", name: "வரவேற்பு", date: "27 நவம்பர் 2026", time: "மாலை 7:00", venue: "ஐடிசி காகதீயா கிராண்ட் பால்ரூம்", address: "பேகம்பேட், ஹைதராபாத்", mapsQuery: "ITC Kakatiya Hyderabad", emoji: "✨" },
+    ],
+    contactPhones: [
+      { label: "மணமகள் குடும்பம்", phone: "+91 98765 43210" },
+      { label: "மணமகன் குடும்பம்", phone: "+91 98765 12345" },
+    ],
+  },
+  kn: {
+    brideName: "ಪಾರ್ವತಿ",
+    brideParents: "ಶ್ರೀ ಹಿಮವಾನ್ & ಶ್ರೀಮತಿ ಮೇನಾ ಅವರ ಮಗಳು",
+    groomName: "ಶಿವ",
+    groomParents: "ಕೈಲಾಸದ ದೈವಿಕ ವಂಶದ ಮಗ",
+    muhurtam: "ಗುರುವಾರ, 26 ನವೆಂಬರ್ 2026 · ಬೆಳಿಗ್ಗೆ 10:30",
+    invitation:
+      "ದೇವರ ಮತ್ತು ನಮ್ಮ ಪ್ರೀತಿಯ ಹಿರಿಯರ ಆಶೀರ್ವಾದದೊಂದಿಗೆ, ನಮ್ಮ ಪ್ರೀತಿಯ ಮಕ್ಕಳ ಶುಭ ವಿವಾಹ ಮಹೋತ್ಸವಕ್ಕೆ ನಿಮ್ಮನ್ನು ಸಂತೋಷದಿಂದ ಆಹ್ವಾನಿಸುತ್ತೇವೆ.",
+    events: [
+      { id: "haldi", name: "ಅರಿಶಿನ (ಹಲ್ದಿ)", date: "24 ನವೆಂಬರ್ 2026", time: "ಬೆಳಿಗ್ಗೆ 10:00", venue: "ಶರ್ಮಾ ನಿವಾಸ", address: "ಪ್ಲಾಟ್ 14, ಜುಬಿಲಿ ಹಿಲ್ಸ್, ಹೈದರಾಬಾದ್", mapsQuery: "Jubilee Hills Hyderabad", emoji: "🌼" },
+      { id: "mehndi", name: "ಮೆಹಂದಿ", date: "24 ನವೆಂಬರ್ 2026", time: "ಸಂಜೆ 5:00", venue: "ಶರ್ಮಾ ನಿವಾಸ ಲಾನ್", address: "ಪ್ಲಾಟ್ 14, ಜುಬಿಲಿ ಹಿಲ್ಸ್, ಹೈದರಾಬಾದ್", mapsQuery: "Jubilee Hills Hyderabad", emoji: "🌿" },
+      { id: "sangeet", name: "ಸಂಗೀತ್", date: "25 ನವೆಂಬರ್ 2026", time: "ಸಂಜೆ 7:30", venue: "ತಾಜ್ ಕೃಷ್ಣ ಬಾಲ್ರೂಮ್", address: "ಬಂಜಾರಾ ಹಿಲ್ಸ್, ಹೈದರಾಬಾದ್", mapsQuery: "Taj Krishna Banjara Hills Hyderabad", emoji: "🎶" },
+      { id: "wedding", name: "ವಿವಾಹ", date: "26 ನವೆಂಬರ್ 2026", time: "ಬೆಳಿಗ್ಗೆ 10:30", venue: "ಶ್ರೀ ವೆಂಕಟೇಶ್ವರ ಕಲ್ಯಾಣ ಮಂಟಪ", address: "ರಸ್ತೆ ನಂ. 12, ಬಂಜಾರಾ ಹಿಲ್ಸ್, ಹೈದರಾಬಾದ್", mapsQuery: "Sri Venkateshwara Kalyana Mandapam Banjara Hills Hyderabad", emoji: "🪔" },
+      { id: "reception", name: "ತತ್ಕಾರ", date: "27 ನವೆಂಬರ್ 2026", time: "ಸಂಜೆ 7:00", venue: "ಐಟಿಸಿ ಕಾಕತೀಯ ಗ್ರ್ಯಾಂಡ್ ಬಾಲ್ರೂಮ್", address: "ಬೇಗಂಪೇಟೆ, ಹೈದರಾಬಾದ್", mapsQuery: "ITC Kakatiya Hyderabad", emoji: "✨" },
+    ],
+    contactPhones: [
+      { label: "ವಧುವಿನ ಕುಟುಂಬ", phone: "+91 98765 43210" },
+      { label: "ವರನ ಕುಟುಂಬ", phone: "+91 98765 12345" },
+    ],
+  },
+  ml: {
+    brideName: "പാർവതി",
+    brideParents: "ശ്രീ ഹിമവാൻ & ശ്രീമതി മേനയുടെ മകൾ",
+    groomName: "ശിവ",
+    groomParents: "കൈലാസത്തിന്റെ ദിവ്യ വംശത്തിലെ മകൻ",
+    muhurtam: "വ്യാഴാഴ്ച, 26 നവംബർ 2026 · രാവിലെ 10:30",
+    invitation:
+      "ഈശ്വരന്റെയും ഞങ്ങളുടെ പ്രിയപ്പെട്ട മുതിർന്നവരുടെയും അനുഗ്രഹത്തോടെ, ഞങ്ങളുടെ പ്രിയപ്പെട്ട കുട്ടികളുടെ ശുഭ വിവാഹ ചടങ്ങിലേക്ക് നിങ്ങളെ സന്തോഷപൂർവ്വം ക്ഷണിക്കുന്നു.",
+    events: [
+      { id: "haldi", name: "മഞ്ഞൾ (ഹൽദി)", date: "24 നവംബർ 2026", time: "രാവിലെ 10:00", venue: "ശർമ്മ വസതി", address: "പ്ലോട്ട് 14, ജൂബിലി ഹിൽസ്, ഹൈദരാബാദ്", mapsQuery: "Jubilee Hills Hyderabad", emoji: "🌼" },
+      { id: "mehndi", name: "മെഹന്തി", date: "24 നവംബർ 2026", time: "വൈകുന്നേരം 5:00", venue: "ശർമ്മ വസതി ലോൺ", address: "പ്ലോട്ട് 14, ജൂബിലി ഹിൽസ്, ഹൈദരാബാദ്", mapsQuery: "Jubilee Hills Hyderabad", emoji: "🌿" },
+      { id: "sangeet", name: "സംഗീത്", date: "25 നവംബർ 2026", time: "വൈകുന്നേരം 7:30", venue: "താജ് കൃഷ്ണ ബാൾറൂം", address: "ബഞ്ചാര ഹിൽസ്, ഹൈദരാബാദ്", mapsQuery: "Taj Krishna Banjara Hills Hyderabad", emoji: "🎶" },
+      { id: "wedding", name: "വിവാഹം", date: "26 നവംബർ 2026", time: "രാവിലെ 10:30", venue: "ശ്രീ വെങ്കിടേശ്വര കല്യാണമണ്ഡപം", address: "റോഡ് നമ്പർ 12, ബഞ്ചാര ഹിൽസ്, ഹൈദരാബാദ്", mapsQuery: "Sri Venkateshwara Kalyana Mandapam Banjara Hills Hyderabad", emoji: "🪔" },
+      { id: "reception", name: "സത്കാരം", date: "27 നവംബർ 2026", time: "വൈകുന്നേരം 7:00", venue: "ഐടിസി കാകതീയ ഗ്രാൻഡ് ബാൾറൂം", address: "ബേഗംപേട്ട്, ഹൈദരാബാദ്", mapsQuery: "ITC Kakatiya Hyderabad", emoji: "✨" },
+    ],
+    contactPhones: [
+      { label: "വധുവിന്റെ കുടുംബം", phone: "+91 98765 43210" },
+      { label: "വരന്റെ കുടുംബം", phone: "+91 98765 12345" },
+    ],
+  },
 };

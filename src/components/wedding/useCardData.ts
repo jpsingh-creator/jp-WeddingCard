@@ -17,7 +17,9 @@ export function useCardData() {
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    setLoaded(false);
+    // We intentionally do not setLoaded(false) here. 
+    // Keeping it true prevents the entire WeddingCard from unmounting, 
+    // which would otherwise reset the intro animations (Ganesha/Curtain).
     
     Promise.all([
       getIDB(KEY_PREFIX + lang).catch(() => null),

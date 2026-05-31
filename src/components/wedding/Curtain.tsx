@@ -3,7 +3,7 @@ import { playSfx } from "@/lib/sfx";
 import { useLang } from "@/i18n";
 
 export function Curtain({ onDone }: { onDone: () => void }) {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const [opening, setOpening] = useState(false);
   const [hidden, setHidden] = useState(false);
   const [textFading, setTextFading] = useState(false);
@@ -71,7 +71,7 @@ export function Curtain({ onDone }: { onDone: () => void }) {
 
           {/* Main title — Shubh Vivah */}
           <p
-            className="font-script leading-none text-center"
+            className={`leading-none text-center ${lang === 'en' ? 'font-script' : 'font-display font-semibold'}`}
             style={{
               fontSize: "clamp(3.5rem, 12vw, 7.5rem)",
               color: "#F1D98A",
