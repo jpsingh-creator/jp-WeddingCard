@@ -16,57 +16,82 @@ export function useCardData() {
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    // Cloud API endpoints for JSON state
-    const cardDataUrl = `/api/media/db/card-data-${lang}.json`;
-    const memoriesUrl = `/api/media/db/memories.json`;
+    let isMounted = true;
+    let pollInterval: any;
 
-    // 1. Fetch from Cloud R2 DB first
-    // 2. Fallback to IndexedDB (IDB) if cloud fails (e.g. offline or localhost without binding)
-    // 3. Fallback to LocalStorage (LS) if IDB fails
-    Promise.all([
-      fetch(cardDataUrl)
-        .then(res => res.ok ? res.json() : Promise.reject('No cloud data'))
-        .catch(() => getIDB(KEY_PREFIX + lang).catch(() => null)),
-      fetch(memoriesUrl)
-        .then(res => res.ok ? res.json() : Promise.reject('No cloud memories'))
-        .catch(() => getIDB(GLOBAL_MEMORIES_KEY).catch(() => null))
-    ]).then(([cloudOrIdbData, cloudOrIdbMemories]) => {
-      
-      let finalData = cloudOrIdbData;
-      if (!finalData) {
-        try {
-          const raw = localStorage.getItem(KEY_PREFIX + lang);
-          if (raw) finalData = JSON.parse(raw);
-        } catch {}
-      }
-      // If we loaded from cloud, cache locally
-      if (finalData) setIDB(KEY_PREFIX + lang, finalData).catch(() => {});
+    const fetchLatestData = () => {
+      const cacheBuster = `?t=${Date.now()}`;
+      const cardDataUrl = `/api/media/db/card-data-${lang}.json${cacheBuster}`;
+      const memoriesUrl = `/api/media/db/memories.json${cacheBuster}`;
 
-      let finalMemories = cloudOrIdbMemories;
-      if (!finalMemories) {
-        try {
-          const raw = localStorage.getItem(GLOBAL_MEMORIES_KEY);
-          if (raw) finalMemories = JSON.parse(raw);
-        } catch {}
-      }
+      // 1. Fetch from Cloud R2 DB first
+      // 2. Fallback to IndexedDB (IDB) if cloud fails (e.g. offline or localhost without binding)
+      // 3. Fallback to LocalStorage (LS) if IDB fails
+      Promise.all([
+        fetch(cardDataUrl)
+          .then(res => res.ok ? res.json() : Promise.reject('No cloud data'))
+          .catch(() => getIDB(KEY_PREFIX + lang).catch(() => null)),
+        fetch(memoriesUrl)
+          .then(res => res.ok ? res.json() : Promise.reject('No cloud memories'))
+          .catch(() => getIDB(GLOBAL_MEMORIES_KEY).catch(() => null))
+      ]).then(([cloudOrIdbData, cloudOrIdbMemories]) => {
+        if (!isMounted) return;
 
-      if (!finalMemories) {
-        // Migration: extract memories from current lang if global doesn't exist yet
-        if (finalData && finalData.memories) {
-          finalMemories = finalData.memories;
-        } else {
-          finalMemories = globalMemories.length > 0 ? globalMemories : [];
+        let finalData = cloudOrIdbData;
+        if (!finalData) {
+          try {
+            const raw = localStorage.getItem(KEY_PREFIX + lang);
+            if (raw) finalData = JSON.parse(raw);
+          } catch {}
         }
-      }
-      if (finalMemories.length > 0) {
-        setIDB(GLOBAL_MEMORIES_KEY, finalMemories).catch(() => {});
-      }
+        // If we loaded from cloud, cache locally
+        if (finalData) setIDB(KEY_PREFIX + lang, finalData).catch(() => {});
 
-      setOverrides(finalData || null);
-      setGlobalMemories(finalMemories);
-      setLoaded(true);
-    });
-  }, [lang]);
+        let finalMemories = cloudOrIdbMemories;
+        if (!finalMemories) {
+          try {
+            const raw = localStorage.getItem(GLOBAL_MEMORIES_KEY);
+            if (raw) finalMemories = JSON.parse(raw);
+          } catch {}
+        }
+
+        if (!finalMemories) {
+          // Migration: extract memories from current lang if global doesn't exist yet
+          if (finalData && finalData.memories) {
+            finalMemories = finalData.memories;
+          } else {
+            finalMemories = globalMemories.length > 0 ? globalMemories : [];
+          }
+        }
+        if (finalMemories.length > 0) {
+          setIDB(GLOBAL_MEMORIES_KEY, finalMemories).catch(() => {});
+        }
+
+        // Only update state if data actually changed to prevent unnecessary re-renders
+        setOverrides(prev => JSON.stringify(prev) !== JSON.stringify(finalData) ? (finalData || null) : prev);
+        setGlobalMemories(prev => JSON.stringify(prev) !== JSON.stringify(finalMemories) ? finalMemories : prev);
+        setLoaded(true);
+      });
+    };
+
+    // Initial fetch
+    fetchLatestData();
+
+    // Poll every 10 seconds for instant updates across devices
+    pollInterval = setInterval(fetchLatestData, 10000);
+
+    // Also fetch immediately when user switches back to this tab
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') fetchLatestData();
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+
+    return () => {
+      isMounted = false;
+      clearInterval(pollInterval);
+      document.removeEventListener('visibilitychange', handleVisibility);
+    };
+  }, [lang, globalMemories.length]);
 
   const data = useMemo<CardData>(() => {
     const langDefaults = DATA_BY_LANG[lang] ?? {};

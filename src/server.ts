@@ -125,7 +125,11 @@ async function handleMediaRequest(
       const headers = new Headers();
       object.writeHttpMetadata(headers);
       headers.set("etag", object.httpEtag);
-      headers.set("Cache-Control", "public, max-age=31536000, immutable");
+      if (key.startsWith("db/") || key.endsWith(".json")) {
+        headers.set("Cache-Control", "no-cache, no-store, must-revalidate");
+      } else {
+        headers.set("Cache-Control", "public, max-age=31536000, immutable");
+      }
       return new Response(object.body, { headers });
     } catch (e) {
       console.error("R2 GET error:", e);
