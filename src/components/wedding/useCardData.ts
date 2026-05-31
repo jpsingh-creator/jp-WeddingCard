@@ -77,8 +77,8 @@ export function useCardData() {
     // Initial fetch
     fetchLatestData();
 
-    // Poll every 10 seconds for instant updates across devices
-    pollInterval = setInterval(fetchLatestData, 10000);
+    // Poll every 2 seconds for instant updates across devices
+    pollInterval = setInterval(fetchLatestData, 2000);
 
     // Also fetch immediately when user switches back to this tab
     const handleVisibility = () => {

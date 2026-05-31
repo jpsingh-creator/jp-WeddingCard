@@ -97,14 +97,7 @@ async function handleMediaRequest(
   if (!url.pathname.startsWith(prefix)) return null;
 
   const bucket = env.WEDDING_MEDIA as R2Bucket | undefined;
-
-  if (!bucket) {
-    return new Response(
-      JSON.stringify({ ok: false, error: "R2 not configured" }),
-      { status: 503, headers: { "Content-Type": "application/json" } },
-    );
-  }
-
+  
   // Decode the key (handles spaces like "WhatsApp Image elephant.jpeg")
   const key = decodeURIComponent(url.pathname.slice(prefix.length));
 
@@ -112,6 +105,47 @@ async function handleMediaRequest(
     return new Response(
       JSON.stringify({ ok: false, error: "Missing key" }),
       { status: 400, headers: { "Content-Type": "application/json" } },
+    );
+  }
+
+  if (!bucket) {
+    // If running locally without Cloudflare R2 bindings, use an in-memory map
+    // so that multiple devices on the same WiFi can sync with each other during development.
+    const globalAny = globalThis as any;
+    if (!globalAny.__LOCAL_DB__) {
+      globalAny.__LOCAL_DB__ = new Map<string, string>();
+    }
+    
+    if (request.method === "PUT") {
+      try {
+        const text = await request.clone().text();
+        globalAny.__LOCAL_DB__.set(key, text);
+        return new Response(JSON.stringify({ ok: true, key, local: true }), {
+          status: 200, headers: { "Content-Type": "application/json" }
+        });
+      } catch (e) {
+        return new Response(JSON.stringify({ ok: false, error: "Local memory save failed" }), { status: 500 });
+      }
+    }
+    
+    if (request.method === "GET") {
+      const data = globalAny.__LOCAL_DB__.get(key);
+      if (data) {
+        return new Response(data, {
+          status: 200,
+          headers: {
+            "Content-Type": "application/json",
+            "Cache-Control": "no-cache, no-store, must-revalidate"
+          }
+        });
+      } else {
+        return new Response("Not found locally", { status: 404 });
+      }
+    }
+
+    return new Response(
+      JSON.stringify({ ok: false, error: "Local mock only supports GET and PUT" }),
+      { status: 503, headers: { "Content-Type": "application/json" } }
     );
   }
 
@@ -213,6 +247,29 @@ async function handleMediaRequest(
 export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
     try {
+      const url = new URL(request.url);
+      
+      // GHOST ASSET CATCHER:
+      // If Cloudflare Workers Assets doesn't find the file, it passes the request here.
+      // If this is an old Javascript file requested by a cached broken HTML file,
+      // we return a self-destruct script to forcefully clear the user's cache and reload.
+      if (url.pathname.startsWith('/assets/') && url.pathname.endsWith('.js')) {
+        const selfDestructScript = `
+          console.warn("Old asset requested. Clearing cache and reloading...");
+          caches.keys().then(keys => Promise.all(keys.map(k => caches.delete(k))))
+            .then(() => navigator.serviceWorker.getRegistrations())
+            .then(regs => Promise.all(regs.map(r => r.unregister())))
+            .then(() => window.location.reload(true));
+        `;
+        return new Response(selfDestructScript, {
+          status: 200,
+          headers: {
+            "Content-Type": "application/javascript",
+            "Cache-Control": "no-store, no-cache, max-age=0, must-revalidate"
+          }
+        });
+      }
+
       // Handle R2 media requests directly (env is available here)
       const mediaResponse = await handleMediaRequest(
         request,
@@ -222,7 +279,11 @@ export default {
 
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);
-      return await normalizeCatastrophicSsrResponse(response);
+      const finalResponse = await normalizeCatastrophicSsrResponse(response);
+      
+      // Ensure Cloudflare Edge never caches the HTML to prevent blank screens after deployments
+      finalResponse.headers.set("Cache-Control", "no-cache, no-store, must-revalidate");
+      return finalResponse;
     } catch (error) {
       console.error(error);
       return brandedErrorResponse();

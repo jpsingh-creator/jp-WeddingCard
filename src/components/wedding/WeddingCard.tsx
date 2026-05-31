@@ -98,6 +98,8 @@ export function WeddingCard() {
 
   if (!loaded) return null;
 
+  console.log("WeddingCard v5 Loaded");
+
   const wedding = data.events.find((e) => e.id === "wedding") ?? data.events[0];
 
   return (

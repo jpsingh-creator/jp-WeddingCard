@@ -4,7 +4,7 @@
 //   * Navigation/HTML  → network-first, falls back to cached "/"
 //   * Same-origin assets (JS/CSS/images/fonts/audio) → stale-while-revalidate
 //   * Cross-origin GETs → cache-on-success, fallback to cache
-const CACHE = "wedding-invite-v3";
+const CACHE = "wedding-invite-v5";
 
 const PRECACHE_PATHS = [
   "/",
@@ -52,6 +52,12 @@ self.addEventListener("fetch", (event) => {
   try { url = new URL(req.url); } catch { return; }
 
   // HTML navigations: network-first with offline fallback to cached root.
+  // Bypass Service Worker entirely for database files so they are always fresh
+  // and do not bloat the cache with ?t= timestamps.
+  if (url.pathname.includes("/api/media/db/")) {
+    return;
+  }
+
   const isNavigation =
     req.mode === "navigate" ||
     (req.headers.get("accept") || "").includes("text/html");
