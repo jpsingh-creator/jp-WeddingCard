@@ -69,6 +69,24 @@ async function normalizeCatastrophicSsrResponse(response: Response): Promise<Res
 // ——— R2 Media Handler ———
 // Handles /api/media/* requests directly here where the Cloudflare env
 // (and thus the R2 bucket binding) is guaranteed to be available.
+// This is the ONLY place R2 is accessed — the old TanStack API route was removed.
+
+interface R2Object {
+  body: ReadableStream;
+  httpEtag: string;
+  writeHttpMetadata: (h: Headers) => void;
+}
+
+interface R2Bucket {
+  get: (key: string) => Promise<R2Object | null>;
+  put: (
+    key: string,
+    body: ReadableStream | ArrayBuffer | null,
+    opts?: { httpMetadata?: { contentType?: string } },
+  ) => Promise<void>;
+  delete: (key: string | string[]) => Promise<void>;
+}
+
 async function handleMediaRequest(
   request: Request,
   env: Record<string, unknown>,
@@ -78,30 +96,23 @@ async function handleMediaRequest(
 
   if (!url.pathname.startsWith(prefix)) return null;
 
-  const bucket = env.WEDDING_MEDIA as
-    | {
-        get: (key: string) => Promise<{
-          body: ReadableStream;
-          httpEtag: string;
-          writeHttpMetadata: (h: Headers) => void;
-        } | null>;
-        put: (
-          key: string,
-          body: ReadableStream | ArrayBuffer | null,
-          opts?: { httpMetadata?: { contentType?: string } },
-        ) => Promise<void>;
-      }
-    | undefined;
+  const bucket = env.WEDDING_MEDIA as R2Bucket | undefined;
 
   if (!bucket) {
-    return new Response("R2 not configured", { status: 503 });
+    return new Response(
+      JSON.stringify({ ok: false, error: "R2 not configured" }),
+      { status: 503, headers: { "Content-Type": "application/json" } },
+    );
   }
 
   // Decode the key (handles spaces like "WhatsApp Image elephant.jpeg")
   const key = decodeURIComponent(url.pathname.slice(prefix.length));
 
   if (!key) {
-    return new Response("Missing key", { status: 400 });
+    return new Response(
+      JSON.stringify({ ok: false, error: "Missing key" }),
+      { status: 400, headers: { "Content-Type": "application/json" } },
+    );
   }
 
   // ——— GET: serve a file from R2 ———
@@ -136,7 +147,59 @@ async function handleMediaRequest(
       });
     } catch (e) {
       console.error("R2 PUT error:", e);
-      return new Response("Upload Error", { status: 500 });
+      return new Response(
+        JSON.stringify({ ok: false, error: "Upload Error" }),
+        { status: 500, headers: { "Content-Type": "application/json" } },
+      );
+    }
+  }
+
+  // ——— DELETE: soft-delete (move to bin/) or permanent delete (if already in bin/) ———
+  if (request.method === "DELETE") {
+    try {
+      // If the file is already in bin/, permanently delete it
+      if (key.startsWith("bin/")) {
+        await bucket.delete(key);
+        return new Response(
+          JSON.stringify({ ok: true, permanentlyDeleted: key }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+
+      // Otherwise, move to bin/ (copy to bin then delete original)
+      const object = await bucket.get(key);
+      if (!object) {
+        // File doesn't exist in R2, that's fine — just confirm deletion
+        return new Response(
+          JSON.stringify({ ok: true, note: "File not found in R2, nothing to move" }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+
+      // Read content type from the original object
+      const headers = new Headers();
+      object.writeHttpMetadata(headers);
+      const contentType = headers.get("Content-Type") || "application/octet-stream";
+
+      // Copy to bin/ folder preserving original path structure
+      const binKey = `bin/${key}`;
+      await bucket.put(binKey, object.body, {
+        httpMetadata: { contentType },
+      });
+
+      // Delete the original
+      await bucket.delete(key);
+
+      return new Response(
+        JSON.stringify({ ok: true, movedTo: binKey }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      );
+    } catch (e) {
+      console.error("R2 DELETE error:", e);
+      return new Response(
+        JSON.stringify({ ok: false, error: "Delete Error" }),
+        { status: 500, headers: { "Content-Type": "application/json" } },
+      );
     }
   }
 

@@ -89,14 +89,15 @@ export function EditPanel({
   const [uploading, setUploading] = useState(false);
 
   const addMemories = async (files: FileList | null) => {
-    if (!files) return;
+    if (!files || files.length === 0) return;
     setUploading(true);
 
     for (const file of Array.from(files)) {
       const mediaType: 'image' | 'video' = file.type.startsWith('video') ? 'video' : 'image';
       const ext = file.name.split('.').pop() || (mediaType === 'video' ? 'mp4' : 'jpg');
+      const folder = mediaType === 'video' ? 'videos' : 'photos';
       const uniqueName = `memory-${Date.now()}-${Math.random().toString(36).slice(2, 6)}.${ext}`;
-      const r2Key = `photos/${uniqueName}`;
+      const r2Key = `${folder}/${uniqueName}`;
 
       let dataUrl = '';
 
@@ -132,33 +133,54 @@ export function EditPanel({
       setD((prev) => ({ ...prev, memories: [...(prev.memories || []), newMemory] }));
     }
 
+    // Reset file input so same file can be uploaded again
+    if (fileInputRef.current) fileInputRef.current.value = '';
     setUploading(false);
   };
 
-  const removeMemory = (id: string) => {
-    setD({ ...d, memories: (d.memories || []).filter(m => m.id !== id) });
+  const removeMemory = async (id: string) => {
+    // Find the memory to check if it's stored in R2
+    const mem = (d.memories || []).find(m => m.id === id);
+
+    // If the file is in R2 (path starts with /api/media/), call DELETE to move it to bin/
+    if (mem && mem.dataUrl.startsWith('/api/media/')) {
+      try {
+        await fetch(mem.dataUrl, { method: 'DELETE' });
+      } catch {
+        // Silently continue — we still remove it from the UI
+      }
+    }
+
+    // Remove from local state using callback form to avoid stale-state bugs
+    setD((prev) => ({
+      ...prev,
+      memories: (prev.memories || []).filter(m => m.id !== id),
+    }));
   };
 
   const updateMemoryCaption = (id: string, caption: string) => {
-    setD({
-      ...d,
-      memories: (d.memories || []).map(m => m.id === id ? { ...m, caption } : m),
-    });
+    setD((prev) => ({
+      ...prev,
+      memories: (prev.memories || []).map(m => m.id === id ? { ...m, caption } : m),
+    }));
   };
 
   const moveMemoryUp = (i: number) => {
     if (i === 0) return;
-    const memories = [...(d.memories || [])];
-    [memories[i - 1], memories[i]] = [memories[i], memories[i - 1]];
-    setD({ ...d, memories });
+    setD((prev) => {
+      const memories = [...(prev.memories || [])];
+      [memories[i - 1], memories[i]] = [memories[i], memories[i - 1]];
+      return { ...prev, memories };
+    });
   };
 
   const moveMemoryDown = (i: number) => {
-    const memories = d.memories || [];
-    if (i === memories.length - 1) return;
-    const updated = [...memories];
-    [updated[i], updated[i + 1]] = [updated[i + 1], updated[i]];
-    setD({ ...d, memories: updated });
+    setD((prev) => {
+      const memories = [...(prev.memories || [])];
+      if (i >= memories.length - 1) return prev;
+      [memories[i], memories[i + 1]] = [memories[i + 1], memories[i]];
+      return { ...prev, memories };
+    });
   };
 
   return (
