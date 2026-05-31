@@ -44,6 +44,8 @@ export function WeddingCard() {
   const [ganeshaDone, setGaneshaDone] = useState(false);
   const [curtainDone, setCurtainDone] = useState(false);
   const [showEdit, setShowEdit] = useState(false);
+  const [showPinPrompt, setShowPinPrompt] = useState(false);
+  const [pinInput, setPinInput] = useState("");
   const startCurtain = () => setGaneshaDone(true);
 
   // Secret admin trigger logic
@@ -64,13 +66,19 @@ export function WeddingCard() {
       secretClicks.current += 1;
       if (secretClicks.current >= 5) {
         secretClicks.current = 0;
-        const pin = prompt("Enter Admin PIN:");
-        if (pin === "556") {
-          setShowEdit(true);
-        } else if (pin !== null) {
-          alert("Incorrect PIN");
-        }
+        setShowPinPrompt(true);
       }
+    }
+  };
+
+  const submitPin = () => {
+    if (pinInput === "556") {
+      setShowEdit(true);
+      setShowPinPrompt(false);
+      setPinInput("");
+    } else {
+      alert("Incorrect PIN");
+      setPinInput("");
     }
   };
 
@@ -94,6 +102,38 @@ export function WeddingCard() {
 
   return (
     <div className="relative min-h-screen text-ivory">
+      {/* Admin PIN Prompt */}
+      {showPinPrompt && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+          <div className="bg-[#1a0f0f] border border-[#d4af37]/30 p-6 rounded-2xl max-w-sm w-full text-center shadow-2xl">
+            <h3 className="text-xl text-[#d4af37] font-serif mb-4">Admin Access</h3>
+            <input
+              type="password"
+              placeholder="Enter PIN"
+              value={pinInput}
+              onChange={(e) => setPinInput(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && submitPin()}
+              className="w-full bg-black/50 border border-[#d4af37]/50 rounded-lg p-3 text-center text-ivory tracking-widest text-2xl focus:outline-none focus:border-[#d4af37] mb-6"
+              autoFocus
+            />
+            <div className="flex gap-4">
+              <button 
+                onClick={() => { setShowPinPrompt(false); setPinInput(""); }}
+                className="flex-1 px-4 py-2 border border-[#d4af37]/30 text-ivory rounded-lg hover:bg-[#d4af37]/10 transition-colors font-label tracking-widest text-sm"
+              >
+                CANCEL
+              </button>
+              <button 
+                onClick={submitPin}
+                className="flex-1 px-4 py-2 bg-gradient-to-r from-[#d4af37] to-[#aa8323] text-black font-semibold rounded-lg hover:opacity-90 transition-opacity font-label tracking-widest text-sm"
+              >
+                UNLOCK
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <LanguageSwitcher />
       <GaneshaIntro onDone={startCurtain} />
       {ganeshaDone && <Curtain onDone={() => setCurtainDone(true)} />}
