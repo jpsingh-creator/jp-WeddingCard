@@ -486,6 +486,9 @@ html {
   margin: 0 auto;
   z-index: 1;
   display: grid; /* We use grid so absolute children can stack perfectly over the relative child */
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 /* The golden aura that breathes around the photo */
@@ -566,6 +569,8 @@ html {
   border-radius: 1.5rem;
   animation: memories-drift 12s ease-in-out infinite alternate;
   transform-origin: center center;
+  pointer-events: none; /* Prevents mobile long-press context menu */
+  -webkit-user-drag: none;
 }
 
 @keyframes memories-drift {
@@ -635,6 +640,7 @@ html {
   cursor: pointer;
   transition: all 0.3s ease;
   padding: 0;
+  pointer-events: auto; /* Required since image underneath has pointer-events: none */
 }
 
 .memories-mute-btn:hover {
