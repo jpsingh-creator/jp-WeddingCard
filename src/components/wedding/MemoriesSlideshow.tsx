@@ -9,6 +9,7 @@ export function MemoriesSlideshow({ memories }: { memories: MemoryItem[] }) {
   const [current, setCurrent] = useState(0);
   const [previous, setPrevious] = useState<number | null>(null);
   const [isMuted, setIsMuted] = useState(true);
+  const [isPaused, setIsPaused] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout>>(null!);
   const videoRefs = useRef<Record<number, HTMLVideoElement>>({});
   const touchStart = useRef<number>(0);
@@ -32,7 +33,7 @@ export function MemoriesSlideshow({ memories }: { memories: MemoryItem[] }) {
   // Auto-advance for images (videos advance on their own via onEnded)
   useEffect(() => {
     const mem = memories[current];
-    if (!mem || count <= 1) return;
+    if (!mem || count <= 1 || isPaused) return;
 
     if (mem.mediaType === "video") {
       // Don't auto-advance — wait for onEnded
@@ -41,7 +42,7 @@ export function MemoriesSlideshow({ memories }: { memories: MemoryItem[] }) {
 
     timerRef.current = setTimeout(goNext, SLIDE_DURATION);
     return () => clearTimeout(timerRef.current);
-  }, [current, count, goNext, memories]);
+  }, [current, count, goNext, memories, isPaused]);
 
   // Video playback controller
   useEffect(() => {
@@ -53,26 +54,32 @@ export function MemoriesSlideshow({ memories }: { memories: MemoryItem[] }) {
       vid.muted = isMuted;
 
       if (idx === current) {
-        vid.currentTime = 0;
-        vid.play().catch(() => {
-          // Autoplay policy fallback
-          setIsMuted(true);
-          vid.muted = true;
-          vid.play().catch(() => {});
-        });
+        if (isPaused) {
+          vid.pause();
+        } else {
+          vid.play().catch(() => {
+            // Autoplay policy fallback
+            setIsMuted(true);
+            vid.muted = true;
+            vid.play().catch(() => {});
+          });
+        }
       } else {
         vid.pause();
       }
     });
-  }, [current, isMuted]);
+  }, [current, isMuted, isPaused]);
 
-  // Touch swipe
-  const onTouchStart = (e: React.TouchEvent) => {
-    touchStart.current = e.touches[0].clientX;
+  // Unified Pointer events for both touch and mouse
+  const onPointerDown = (e: React.PointerEvent) => {
+    setIsPaused(true);
+    touchStart.current = e.clientX;
   };
 
-  const onTouchEnd = (e: React.TouchEvent) => {
-    const diff = touchStart.current - e.changedTouches[0].clientX;
+  const onPointerUp = (e: React.PointerEvent) => {
+    setIsPaused(false);
+    const diff = touchStart.current - e.clientX;
+    // Only register as a swipe if dragged significantly
     if (Math.abs(diff) > 50) {
       if (diff > 0) {
         goNext();
@@ -82,18 +89,21 @@ export function MemoriesSlideshow({ memories }: { memories: MemoryItem[] }) {
     }
   };
 
-  if (count === 0) return null;
+  const onPointerLeave = () => {
+    setIsPaused(false);
+  };
 
-  const mem = memories[current];
-  const progressPercent = ((current + 1) / count) * 100;
+  if (count === 0) return null;
 
   // We render at most 2 layers: the exiting (previous) and the entering (current)
   const renderLayer = (idx: number, phase: "entering" | "exiting") => {
     const item = memories[idx];
     if (!item) return null;
 
+    const pausedClass = (phase === "entering" && isPaused) ? " paused" : "";
+
     return (
-      <div key={`${item.id}-${phase}`} className={`memories-layer ${phase}`}>
+      <div key={`${item.id}-${phase}`} className={`memories-layer ${phase}${pausedClass}`}>
         {item.mediaType === "video" ? (
           <video
             src={item.dataUrl}
@@ -172,8 +182,11 @@ export function MemoriesSlideshow({ memories }: { memories: MemoryItem[] }) {
 
       <Reveal delay={300}>
         <div
-          onTouchStart={onTouchStart}
-          onTouchEnd={onTouchEnd}
+          onPointerDown={onPointerDown}
+          onPointerUp={onPointerUp}
+          onPointerLeave={onPointerLeave}
+          onPointerCancel={onPointerLeave}
+          className="select-none touch-pan-y"
         >
           <div className="memories-stage">
             {/* Previous (exiting) layer */}
@@ -186,14 +199,14 @@ export function MemoriesSlideshow({ memories }: { memories: MemoryItem[] }) {
             {count > 1 && (
               <>
                 <button
-                  onClick={goPrev}
+                  onClick={(e) => { e.stopPropagation(); goPrev(); }}
                   className="memories-nav memories-nav-prev"
                   aria-label="Previous memory"
                 >
                   ‹
                 </button>
                 <button
-                  onClick={goNext}
+                  onClick={(e) => { e.stopPropagation(); goNext(); }}
                   className="memories-nav memories-nav-next"
                   aria-label="Next memory"
                 >
@@ -209,7 +222,8 @@ export function MemoriesSlideshow({ memories }: { memories: MemoryItem[] }) {
               {memories.map((_, i) => (
                 <button
                   key={i}
-                  onClick={() => {
+                  onClick={(e) => {
+                    e.stopPropagation();
                     if (i === current) return;
                     setPrevious(current);
                     setCurrent(i);
@@ -223,6 +237,10 @@ export function MemoriesSlideshow({ memories }: { memories: MemoryItem[] }) {
           )}
         </div>
       </Reveal>
+
+      <p className="text-center mt-6 font-label text-[10px] tracking-widest text-gold-soft/50 uppercase">
+        Hold to Pause
+      </p>
     </section>
   );
 }

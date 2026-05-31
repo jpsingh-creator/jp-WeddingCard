@@ -510,10 +510,11 @@ html {
 .memories-layer {
   grid-area: 1 / 1;
   width: 100%;
+  aspect-ratio: 4 / 5; /* Perfect vertical fit across devices */
   border-radius: 1.5rem;
   overflow: hidden;
-  will-change: opacity;
-  transition: opacity 1.5s ease-in-out;
+  will-change: opacity, transform, filter;
+  transition: opacity 1.5s ease-in-out, transform 1.5s cubic-bezier(0.2, 0.9, 0.3, 1), box-shadow 1.5s ease, filter 1.5s ease;
   z-index: 1;
   display: flex;
   align-items: center;
@@ -521,6 +522,18 @@ html {
   /* Shadow directly on the layer */
   box-shadow: 0 10px 40px -10px oklch(0 0 0 / 0.5);
   border: 1px solid oklch(0.78 0.14 85 / 0.2);
+}
+
+/* 🌟 Eudaimonia Pause Effect 🌟 */
+.memories-layer.paused {
+  transform: scale(0.98);
+  box-shadow: 0 0 40px 10px oklch(0.78 0.14 85 / 0.6), inset 0 0 20px oklch(0.78 0.14 85 / 0.3);
+  filter: brightness(1.05) contrast(1.05);
+}
+
+.memories-layer.paused img,
+.memories-layer.paused video {
+  animation-play-state: paused;
 }
 
 .memories-layer.entering {
@@ -547,15 +560,17 @@ html {
 .memories-layer img,
 .memories-layer video {
   width: 100%;
-  height: auto;
+  height: 100%;
+  object-fit: cover; /* Ensures no bleeding and perfect bounding box */
   display: block;
   border-radius: 1.5rem;
-  animation: memories-drift 8s ease-in-out infinite alternate;
+  animation: memories-drift 12s ease-in-out infinite alternate;
+  transform-origin: center center;
 }
 
 @keyframes memories-drift {
-  0% { transform: scale(1.02) translate(0px, 0px); }
-  100% { transform: scale(1.05) translate(-4px, -2px); }
+  0% { transform: scale(1.01) translate(0px, 0px); }
+  100% { transform: scale(1.06) translate(-2%, -1%); }
 }
 
 /* Caption — whisper-like */
