@@ -455,73 +455,203 @@ html {
   scroll-behavior: smooth;
 }
 
-/* ===== Memories Slideshow ===== */
-.memories-slideshow-container {
+/* ===== Memories — The Warm Glow ===== */
+
+.memories-section {
   position: relative;
-  width: 100%;
-  max-width: min(500px, 70vh * 0.75); /* Ensures the 3:4 aspect ratio never exceeds 70% of screen height */
-  margin: 0 auto;
+  padding: 3rem 0;
+  overflow: hidden;
 }
 
-.memories-slide-frame {
+/* Warm ambient background that "breathes" */
+.memories-section::before {
+  content: '';
+  position: absolute;
+  inset: -40px;
+  background: radial-gradient(ellipse at center, oklch(0.25 0.10 30 / 0.4) 0%, transparent 70%);
+  animation: memories-warmth 6s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes memories-warmth {
+  0%, 100% { opacity: 0.3; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(1.05); }
+}
+
+.memories-stage {
   position: relative;
+  width: 95%;
+  max-width: 600px;
+  margin: 0 auto;
+  z-index: 1;
+  display: grid; /* We use grid so absolute children can stack perfectly over the relative child */
+}
+
+/* The golden aura that breathes around the photo */
+.memories-stage::after {
+  content: '';
+  position: absolute;
+  inset: -12px;
+  border-radius: 2rem;
+  background: transparent;
+  box-shadow: 0 0 60px 8px oklch(0.78 0.14 85 / 0.12);
+  animation: memories-aura 4s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes memories-aura {
+  0%, 100% { box-shadow: 0 0 40px 4px oklch(0.78 0.14 85 / 0.08); }
+  50% { box-shadow: 0 0 80px 12px oklch(0.78 0.14 85 / 0.18); }
+}
+
+/* Each slide layer */
+.memories-layer {
+  grid-area: 1 / 1;
   width: 100%;
-  aspect-ratio: 3 / 4;
   border-radius: 1.5rem;
   overflow: hidden;
-  background: linear-gradient(135deg, oklch(0.22 0.08 25 / 0.9), oklch(0.16 0.06 25 / 0.9));
-  border: 1px solid oklch(0.78 0.14 85 / 0.35);
-  box-shadow:
-    0 20px 60px -15px oklch(0 0 0 / 0.6),
-    inset 0 1px 0 oklch(0.78 0.14 85 / 0.2),
-    0 0 80px -20px oklch(0.78 0.14 85 / 0.15);
-}
-
-.memories-vignette {
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-  pointer-events: none;
-  background: radial-gradient(ellipse at center, transparent 50%, oklch(0.10 0.06 25 / 0.7) 100%);
-}
-
-.memories-slide {
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  transition: opacity 0.8s ease-in-out;
+  will-change: opacity;
+  transition: opacity 1.5s ease-in-out;
   z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Shadow directly on the layer */
+  box-shadow: 0 10px 40px -10px oklch(0 0 0 / 0.5);
+  border: 1px solid oklch(0.78 0.14 85 / 0.2);
 }
 
-.memories-slide-active {
+.memories-layer.entering {
   opacity: 1;
+  z-index: 2;
+}
+
+.memories-layer.exiting {
+  opacity: 0;
   z-index: 1;
 }
 
-.memories-media {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 5s ease-out;
+/* Soft vignette that dissolves edges into the background */
+.memories-edge-fade {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  border-radius: 1.5rem;
+  box-shadow: inset 0 0 50px 20px oklch(0.14 0.06 25 / 0.8);
 }
 
-.memories-caption {
+/* The actual photo/video */
+.memories-layer img,
+.memories-layer video {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 1.5rem;
+  animation: memories-drift 8s ease-in-out infinite alternate;
+}
+
+@keyframes memories-drift {
+  0% { transform: scale(1.02) translate(0px, 0px); }
+  100% { transform: scale(1.05) translate(-4px, -2px); }
+}
+
+/* Caption — whisper-like */
+.memories-whisper {
   position: absolute;
   bottom: 0;
   left: 0;
   right: 0;
-  z-index: 3;
-  padding: 2rem 1.5rem 1.5rem;
-  background: linear-gradient(to top, oklch(0.10 0.06 25 / 0.85) 0%, transparent 100%);
-  backdrop-filter: blur(4px);
-  animation: fade-up 0.6s ease-out both;
+  z-index: 4;
+  padding: 2.5rem 1.5rem 1.5rem;
+  background: linear-gradient(to top, oklch(0.10 0.06 25 / 0.9) 0%, transparent 100%);
+  border-radius: 0 0 1.5rem 1.5rem;
+  text-align: center;
+  animation: memories-caption-in 1s ease-out 0.5s both;
 }
 
+@keyframes memories-caption-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Golden progress thread */
+.memories-thread {
+  position: relative;
+  width: 60%;
+  max-width: 200px;
+  height: 2px;
+  margin: 1.5rem auto 0;
+  background: oklch(0.78 0.14 85 / 0.15);
+  border-radius: 2px;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.memories-thread-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  background: linear-gradient(90deg, oklch(0.78 0.14 85 / 0.6), oklch(0.85 0.16 85 / 0.9));
+  border-radius: 2px;
+  transition: width 0.3s linear;
+  box-shadow: 0 0 8px 1px oklch(0.78 0.14 85 / 0.4);
+}
+
+/* Mute toggle */
+.memories-mute-btn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 10;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: oklch(0.10 0.04 25 / 0.5);
+  backdrop-filter: blur(12px);
+  border: 1px solid oklch(0.78 0.14 85 / 0.15);
+  border-radius: 50%;
+  color: oklch(0.90 0.05 85 / 0.8);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 0;
+}
+
+.memories-mute-btn:hover {
+  background: oklch(0.18 0.06 25 / 0.7);
+  color: var(--gold);
+  transform: scale(1.1);
+}
+
+/* Touch hint that fades away */
+.memories-touch-hint {
+  position: absolute;
+  bottom: -2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: oklch(0.78 0.14 85 / 0.3);
+  animation: memories-hint-fade 4s ease-out 3s forwards;
+}
+
+@keyframes memories-hint-fade {
+  to { opacity: 0; }
+}
+
+/* UI Nav and Dots */
 .memories-nav {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  z-index: 4;
+  z-index: 10;
   width: 44px;
   height: 44px;
   display: flex;
@@ -539,7 +669,7 @@ html {
   transition: opacity 0.3s, background 0.3s, transform 0.2s;
 }
 
-.memories-slide-frame:hover .memories-nav {
+.memories-stage:hover .memories-nav {
   opacity: 1;
 }
 
@@ -553,11 +683,11 @@ html {
 }
 
 .memories-nav-prev {
-  left: 12px;
+  left: -20px;
 }
 
 .memories-nav-next {
-  right: 12px;
+  right: -20px;
 }
 
 .memories-dots {
@@ -565,6 +695,8 @@ html {
   justify-content: center;
   gap: 8px;
   margin-top: 1.25rem;
+  position: relative;
+  z-index: 10;
 }
 
 .memories-dot {
@@ -585,26 +717,9 @@ html {
   box-shadow: 0 0 12px oklch(0.78 0.14 85 / 0.6);
 }
 
-.memories-counter {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  z-index: 4;
-  font-size: 10px;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: oklch(0.78 0.14 85 / 0.7);
-  background: oklch(0.15 0.06 25 / 0.6);
-  backdrop-filter: blur(8px);
-  padding: 4px 10px;
-  border-radius: 999px;
-  border: 1px solid oklch(0.78 0.14 85 / 0.15);
-}
-
-/* On mobile, always show nav arrows */
 @media (max-width: 768px) {
   .memories-nav {
-    opacity: 0.7;
+    opacity: 0.8;
     width: 36px;
     height: 36px;
     font-size: 1.2rem;
