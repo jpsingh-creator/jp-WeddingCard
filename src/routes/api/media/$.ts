@@ -4,12 +4,23 @@ export const Route = createFileRoute("/api/media/$")({
   server: {
     handlers: {
       GET: async ({ request, params }) => {
-        // The wildcard param is in params._splat
-        const key = params._splat;
+        // The wildcard param is in params._splat.
+        // We decode it to handle spaces like "WhatsApp Image elephant.jpeg"
+        const key = decodeURIComponent(params._splat || "");
 
-        // In Cloudflare environments, bindings are often exposed via process.env
-        // (if configured in wrangler) or event contexts. 
-        const bucket = (process.env as any).WEDDING_MEDIA;
+        // In Cloudflare environments with TanStack Start/Vinxi, bindings are usually
+        // located in the H3 event context rather than standard process.env.
+        let bucket: any = (process.env as any).WEDDING_MEDIA;
+        
+        try {
+          const { getEvent } = await import("vinxi/http");
+          const event = getEvent();
+          if (event.context?.cloudflare?.env?.WEDDING_MEDIA) {
+            bucket = event.context.cloudflare.env.WEDDING_MEDIA;
+          }
+        } catch (e) {
+          // Fallback if vinxi is unavailable (though it should be in TanStack Start)
+        }
 
         if (!bucket) {
           // User requested: "connect the data base to only for the deployed site, not for local host"
