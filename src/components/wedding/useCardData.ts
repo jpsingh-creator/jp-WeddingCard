@@ -38,11 +38,19 @@ export function useCardData() {
       // Handle global memories
       let finalMemories = memoriesData;
       if (!finalMemories) {
+        try {
+          const raw = localStorage.getItem(GLOBAL_MEMORIES_KEY);
+          if (raw) finalMemories = JSON.parse(raw);
+        } catch {}
+      }
+
+      if (!finalMemories) {
         // Migration: extract memories from current lang if global doesn't exist yet
         if (finalData && finalData.memories) {
           finalMemories = finalData.memories;
         } else {
-          finalMemories = [];
+          // If we already have globalMemories in state (e.g. from a previous language), keep them!
+          finalMemories = globalMemories.length > 0 ? globalMemories : [];
         }
         if (finalMemories.length > 0) {
           setIDB(GLOBAL_MEMORIES_KEY, finalMemories).catch(() => {});
@@ -50,7 +58,7 @@ export function useCardData() {
       }
 
       setOverrides(finalData || null);
-      setGlobalMemories(finalMemories || []);
+      setGlobalMemories(finalMemories);
       setLoaded(true);
     });
   }, [lang]);
@@ -75,7 +83,9 @@ export function useCardData() {
     setIDB(KEY_PREFIX + lang, dataToStore).catch(() => {
       try { localStorage.setItem(KEY_PREFIX + lang, JSON.stringify(dataToStore)); } catch {}
     });
-    setIDB(GLOBAL_MEMORIES_KEY, nextMemories).catch(() => {});
+    setIDB(GLOBAL_MEMORIES_KEY, nextMemories).catch(() => {
+      try { localStorage.setItem(GLOBAL_MEMORIES_KEY, JSON.stringify(nextMemories)); } catch {}
+    });
   };
 
   const reset = () => {
