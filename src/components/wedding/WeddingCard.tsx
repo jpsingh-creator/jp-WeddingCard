@@ -13,6 +13,7 @@ import { Reveal } from "@/components/wedding/Reveal";
 import { useCardData } from "@/components/wedding/useCardData";
 import { openDirections } from "@/components/wedding/directions";
 import { EditPanel } from "@/components/wedding/EditPanel";
+import { MemoriesSlideshow } from "@/components/wedding/MemoriesSlideshow";
 import { PerfPanel } from "@/components/wedding/PerfPanel";
 import { LanguageSwitcher } from "@/components/wedding/LanguageSwitcher";
 import { useLang } from "@/i18n";
@@ -47,18 +48,30 @@ export function WeddingCard() {
 
   // Secret admin trigger logic
   const secretClicks = useRef(0);
-  const secretTimeout = useRef<ReturnType<typeof setTimeout>>();
+  const firstClickTime = useRef(0);
 
   const handleSecretClick = () => {
-    secretClicks.current += 1;
-    if (secretClicks.current >= 5) {
-      setShowEdit(true);
-      secretClicks.current = 0;
+    const now = Date.now();
+    if (secretClicks.current === 0) {
+      firstClickTime.current = now;
     }
-    clearTimeout(secretTimeout.current);
-    secretTimeout.current = setTimeout(() => {
-      secretClicks.current = 0;
-    }, 1000);
+
+    if (now - firstClickTime.current > 1500) {
+      // Took longer than 1.5s, restart the count
+      secretClicks.current = 1;
+      firstClickTime.current = now;
+    } else {
+      secretClicks.current += 1;
+      if (secretClicks.current >= 5) {
+        secretClicks.current = 0;
+        const pin = prompt("Enter Admin PIN:");
+        if (pin === "556") {
+          setShowEdit(true);
+        } else if (pin !== null) {
+          alert("Incorrect PIN");
+        }
+      }
+    }
   };
 
   const editor = edit === EDIT_KEY;
@@ -306,6 +319,11 @@ export function WeddingCard() {
           <p className="font-serif italic text-gold-soft mt-2">{t.blessingSub}</p>
         </Reveal>
       </section>
+
+      {/* MEMORIES SLIDESHOW */}
+      {data.memories && data.memories.length > 0 && (
+        <MemoriesSlideshow memories={data.memories} />
+      )}
 
       {/* DIYAS / CONTACT */}
       <section className="relative px-5 py-16 text-center">

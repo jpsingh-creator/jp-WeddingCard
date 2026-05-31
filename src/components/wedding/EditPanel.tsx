@@ -1,5 +1,5 @@
-import { useState } from "react";
-import type { CardData, EventItem } from "./types";
+import { useState, useRef } from "react";
+import type { CardData, EventItem, MemoryItem } from "./types";
 
 const suggestEmoji = (name: string): string => {
   const n = name.toLowerCase();
@@ -82,6 +82,54 @@ export function EditPanel({
 
   const removeFeature = (id: string) => {
     setD({ ...d, otherFeatures: (d.otherFeatures || []).filter(f => f.id !== id) });
+  };
+
+  // ——— Memories ———
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const addMemories = (files: FileList | null) => {
+    if (!files) return;
+    Array.from(files).forEach((file) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const dataUrl = reader.result as string;
+        const mediaType: 'image' | 'video' = file.type.startsWith('video') ? 'video' : 'image';
+        const newMemory: MemoryItem = {
+          id: 'memory-' + Date.now() + '-' + Math.random().toString(36).slice(2, 6),
+          dataUrl,
+          caption: '',
+          mediaType,
+        };
+        setD((prev) => ({ ...prev, memories: [...(prev.memories || []), newMemory] }));
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const removeMemory = (id: string) => {
+    setD({ ...d, memories: (d.memories || []).filter(m => m.id !== id) });
+  };
+
+  const updateMemoryCaption = (id: string, caption: string) => {
+    setD({
+      ...d,
+      memories: (d.memories || []).map(m => m.id === id ? { ...m, caption } : m),
+    });
+  };
+
+  const moveMemoryUp = (i: number) => {
+    if (i === 0) return;
+    const memories = [...(d.memories || [])];
+    [memories[i - 1], memories[i]] = [memories[i], memories[i - 1]];
+    setD({ ...d, memories });
+  };
+
+  const moveMemoryDown = (i: number) => {
+    const memories = d.memories || [];
+    if (i === memories.length - 1) return;
+    const updated = [...memories];
+    [updated[i], updated[i + 1]] = [updated[i + 1], updated[i]];
+    setD({ ...d, memories: updated });
   };
 
   return (
@@ -232,6 +280,84 @@ export function EditPanel({
                 </div>
               )}
             </div>
+          </div>
+
+          {/* MEMORIES */}
+          <div className="pt-4 border-t border-gold/20">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-label uppercase tracking-[0.2em] text-gold text-sm">📸 Memories Slideshow</h3>
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                className="text-gold-soft hover:text-gold text-xs font-label flex items-center gap-1 bg-gold/10 px-3 py-1.5 rounded-full transition-colors"
+              >
+                <span>+</span> Add Photos / Videos
+              </button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*,video/*"
+                multiple
+                className="hidden"
+                onChange={(e) => addMemories(e.target.files)}
+              />
+            </div>
+
+            {(d.memories && d.memories.length > 0) ? (
+              <div className="space-y-3">
+                {d.memories.map((mem, i) => (
+                  <div key={mem.id} className="relative rounded-xl border border-gold/30 p-3 bg-black/30 flex gap-3 items-start">
+                    {/* Thumbnail */}
+                    <div className="w-20 h-20 rounded-lg overflow-hidden shrink-0 border border-gold/20">
+                      {mem.mediaType === 'video' ? (
+                        <video src={mem.dataUrl} className="w-full h-full object-cover" muted />
+                      ) : (
+                        <img src={mem.dataUrl} alt={mem.caption || 'Memory'} className="w-full h-full object-cover" />
+                      )}
+                    </div>
+
+                    {/* Caption + info */}
+                    <div className="flex-1 min-w-0 space-y-2">
+                      <div className="flex items-center gap-2">
+                        <span className="font-label text-[10px] uppercase tracking-wider text-gold-soft/70">
+                          {mem.mediaType === 'video' ? '🎬 Video' : '📷 Photo'}
+                        </span>
+                      </div>
+                      <input
+                        value={mem.caption}
+                        onChange={(e) => updateMemoryCaption(mem.id, e.target.value)}
+                        placeholder="Add a caption..."
+                        className="w-full bg-black/30 border border-gold/20 rounded-lg px-3 py-1.5 text-ivory font-serif text-sm focus:outline-none focus:border-gold placeholder:text-ivory/30"
+                      />
+                    </div>
+
+                    {/* Action buttons */}
+                    <div className="flex flex-col items-center gap-1 bg-black/50 backdrop-blur-md rounded-lg px-1.5 py-1 border border-gold/10">
+                      <button onClick={() => moveMemoryUp(i)} disabled={i === 0} className="text-gold-soft hover:text-gold text-sm disabled:opacity-30" title="Move up">↑</button>
+                      <button onClick={() => moveMemoryDown(i)} disabled={i === (d.memories || []).length - 1} className="text-gold-soft hover:text-gold text-sm disabled:opacity-30" title="Move down">↓</button>
+                      <div className="w-full h-px bg-gold/20"></div>
+                      <button onClick={() => removeMemory(mem.id)} className="text-rose/70 hover:text-rose text-sm font-label" title="Remove">✕</button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center p-6 border border-dashed border-gold/30 rounded-xl text-gold-soft/50 font-serif text-sm space-y-2">
+                <p className="text-2xl">📸</p>
+                <p>No memories added yet.</p>
+                <p className="text-[10px] text-gold-soft/30">Add photos & videos of the bride and groom to show as a beautiful slideshow on the invitation.</p>
+              </div>
+            )}
+
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              className="w-full mt-3 border border-dashed border-gold/50 text-gold-soft hover:text-gold hover:border-gold hover:bg-gold/10 py-3 rounded-xl font-label text-sm transition-colors flex items-center justify-center gap-2"
+            >
+              <span className="text-xl leading-none">+</span> Add from Device
+            </button>
+
+            <p className="text-[10px] text-gold-soft/30 mt-2 text-center font-serif">
+              💡 Tip: High-quality photos and videos are supported! (Stored securely on your device).
+            </p>
           </div>
         </div>
 

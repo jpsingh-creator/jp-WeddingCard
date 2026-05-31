@@ -15,6 +15,13 @@ export type OtherFeature = {
   url: string;
 };
 
+export type MemoryItem = {
+  id: string;
+  dataUrl: string;       // base64 data URL of the photo/video
+  caption: string;       // optional caption for the memory
+  mediaType: 'image' | 'video'; // type of media
+};
+
 export type CardData = {
   brideName: string;
   brideParents: string;
@@ -32,6 +39,7 @@ export type CardData = {
   accommodationIcon?: string;
   accommodationAddress?: string;
   accommodationMapsQuery?: string;
+  memories?: MemoryItem[];
 };
 
 export const DEFAULT_DATA: CardData = {
@@ -106,4 +114,5 @@ export const DEFAULT_DATA: CardData = {
   accommodationIcon: "🏨",
   accommodationAddress: "",
   accommodationMapsQuery: "",
+  memories: [],
 };
